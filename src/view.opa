@@ -6,14 +6,14 @@ module View {
         <div class="row-fluid">
           <a class="brand span2" href="/main">Cactus DB</a>
           
-          <div class="nav-collapse collapse span6">
+          <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="/main">Main</a></li>
               <li><a href="/aging">Aging Report</a></li>
               <li><a href="/meta">Meta</a></li>
             </ul>
           </>
-          <span class="form-search pull-right span4">
+          <span class="form-search pull-right" style="text-align: right">
             <input id=#searchtext type="text" class="input-medium search-query" />
             <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
           </>
