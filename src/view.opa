@@ -1,6 +1,6 @@
 module View {
   
-  function template(content) {
+  /*function template(content) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -49,7 +49,54 @@ module View {
         </button>
       </div>;
     template(content)
+  }*/
+  function template(content) {
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/main">Cactus DB</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="/main">Main</a></li>
+              <li><a href="/meta">Meta</a></li>
+              <li><a href="/aging">Aging Report</a></li>
+            </ul>
+          </>
+        </>
+      </>
+    </>
+    <div id=#main class="container-fluid">
+      <div class="row-fluid">     
+        {content} 
+      </div>
+      <hr>
+      <footer>
+        <p>Cactus DB</p>
+      </footer>
+    </div>
   }
+  function page(path) {
 
+    content = 
+      <div class="">
+        Eggs brah <br />
+        {path}
+      </>
+    template(content)
+  }
+  function meta(path) {
+    content = 
+      <div>
+      Meta: {path}
+      </>
+    template(content)
+  }
+  function aging(path) {
+    content = 
+      <div>
+      Aging: {path}
+      </>
+    template(content)
+  }
 }
 
