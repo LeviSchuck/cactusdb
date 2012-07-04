@@ -5,17 +5,56 @@ import stdlib.core.date
 	int counter
 }*/
 type Plant.id = int
+type Plant.Family.id = int
+type Plant.Genus.id = int
+type Plant.Species.id = int
+type Plant.Variety.id = int
+type Plant.Family.t = {
+	Plant.Family.id id,
+	string familyName
+}
+type Plant.Genus.t = {
+	Plant.Genus.id id,
+	Plant.Family.id family,
+	string genusName
+}
+type Plant.Species.t = {
+	Plant.Species.id id,
+	Plant.Genus.id genus,
+	int displayId,
+	string speciesName
+}
+type Plant.Variety.t = {
+	Plant.Variety.id id,
+	Plant.Species.id species,
+	int displayId,
+	string varietyName
+}
 type Plant.t = {
 	Plant.id id,
-	int species,
-	int variant,
+	Plant.Family.id family,
+	Plant.Genus.id genus,
+	Plant.Species.id species,
+	Plant.Variety.id variety,
 	int memberid,
-	string name,
-	string plantFamily,
-	string variety,
 	string origin,
 	string misc,
 	int eventcount
+}
+type Plant.Display = {
+	Plant.id id,
+
+	string family,
+	string genus,
+	string species,
+	string variety,
+
+	int speciesid,
+	int varietyid,
+	int memberid,
+
+	string origin,
+	string misc
 }
 type Plant.History.Kind = int
 type Plant.History.Kinds = {
@@ -40,23 +79,192 @@ database cactusdb {
 	Plant.History.Kinds /Plant/History/Kinds[{kind}]
 	Plant.History.Event /Plant/History/Event[{eventid}]
 	Plant.History.LastEventOf /Plant/History/LastEvent[{plantid, kind}]
-	Plant.id /Plaint/Next/id = 0
+	Plant.Family.t /Plant/Family[{id}]
+	Plant.Genus.t /Plant/Genus[{id}]
+	Plant.Species.t /Plant/Species[{id}]
+	Plant.Variety.t /Plant/Variety[{id}]
+	int /Plant/Next/id = 0
+	int /Plant/Next/Family/id = 0
+	int /Plant/Next/Genus/id = 0
+	int /Plant/Next/Species/id = 0
+	int /Plant/Next/Variety/id = 0
+	int /Plant/Next/Event/Kind/id = 0
 }
 
 module Model {
-  
-	/*function get_content(path) {
-		/cactusdb/page[{~path}]/counter++;
-		/cactusdb/page[{~path}]/content
+	function get_plant(id) {
+		/cactusdb/Plants[{~id}]
+	}
+	function int get_next_event_for_plant(id) {
+		/cactusdb/Plants[{~id}]/eventcount++
+		/cactusdb/Plants[{~id}]/eventcount - 1
+	}
+	function int get_next_id_for_plant() {
+		/cactusdb/Plant/Next/id++
+		/cactusdb/Plant/Next/id - 1
+	}
+	function int get_next_id_for_family() {
+		/cactusdb/Plant/Next/Family/id++
+		/cactusdb/Plant/Next/Family/id - 1
+	}
+	function int get_next_id_for_genus() {
+		/cactusdb/Plant/Next/Genus/id++
+		/cactusdb/Plant/Next/Genus/id - 1
+	}
+	function int get_next_id_for_species() {
+		/cactusdb/Plant/Next/Species/id++
+		/cactusdb/Plant/Next/Species/id - 1
+	}
+	function int get_next_id_for_variety() {
+		/cactusdb/Plant/Next/Variety/id++
+		/cactusdb/Plant/Next/Variety/id - 1
 	}
 
-	function set_content(path, content) {
-		/cactusdb/page[{~path}]/content <- content
+	function Plant.Display get_plant_info(id) {
+		plant = /cactusdb/Plants[{~id}]
+		var = /cactusdb/Plant/Variety[{id: plant.variety}]
+		spec = /cactusdb/Plant/Species[{id: plant.species}]
+		gen = /cactusdb/Plant/Genus[{id: plant.genus}]
+		fam = /cactusdb/Plant/Family[{id: plant.family}]
+		{
+			id : plant.id,
+
+			family : fam.familyName,
+			genus : gen.genusName,
+			species : spec.speciesName,
+			variety : var.varietyName,
+
+			speciesid : spec.displayId,
+			varietyid : var.displayId,
+			memberid : plant.memberid,
+
+			origin : plant.origin,
+			misc : plant.misc
+		}
+	}
+	function save_plant(plant) {
+		/cactusdb/Plants[{id: plant.id}] <- plant
+	}
+	function make_plant(variety,memberid,origin,misc) {
+		id = get_next_id_for_plant()
+		var = /cactusdb/Plant/Variety[{id: variety}]
+		spec = /cactusdb/Plant/Species[{id: var.species}]
+		gen = /cactusdb/Plant/Genus[{id: spec.genus}]
+		fam = /cactusdb/Plant/Family[{id: gen.family}]
+		plant = {
+			~id,
+			family: fam.id,
+			genus: gen.id,
+			species: spec.id,
+			variety: var.id,
+			~memberid,
+			~origin,
+			~misc,
+			eventcount : 0
+		}
+		save_plant(plant)
+	}
+	function find_species_by_display(id) {
+		dbspecid = DbSet.iterator(/cactusdb/Plant/Species[displayId == id])
+		Iter.fold(function(spec,_) {spec.id},dbspecid,-1)
+	}
+	function find_variety_by_display(spec,id) {
+		dbvarid = DbSet.iterator(/cactusdb/Plant/Variety[displayId == id, species == spec])
+		Iter.fold(function(var,_) {var.id},dbvarid,-1)
+	}
+	function find_plant(species,variety,memberid) {
+		spec = find_species_by_display(species)
+		var = find_variety_by_display(spec,variety)
+
+		DbSet.iterator(/cactusdb/Plants[species==spec, variety==var, memberid == memberid])
+	}
+	function find_plants(species,variety) {
+		spec = find_species_by_display(species)
+		var = find_variety_by_display(spec,variety)
+
+		DbSet.iterator(/cactusdb/Plants[species==spec, variety==var])
+	}
+	function find_plants_by_species(species) {
+		spec = find_species_by_display(species)
+
+		DbSet.iterator(/cactusdb/Plants[species==spec])
 	}
 
-	function statistics() {
-		DbSet.iterator(/cactusdb/page)
+	function make_family(name) {
+		id = get_next_id_for_family()
+		/cactusdb/Plant/Family[{~id}] <- {
+			~id,
+			familyName: name
+		}
+		id
+	}
+	function make_genus(family,name) {
+		id = get_next_id_for_genus()
+		/cactusdb/Plant/Genus[{~id}] <- {
+			~id,
+			~family,
+			genusName: name
+		}
+		id
+	}
+	function make_species(genus,name, displayId) {
+		id = get_next_id_for_species()
+		/cactusdb/Plant/Species[{~id}] <- {
+			~id,
+			~genus,
+			speciesName: name,
+			~displayId
+		}
+		id
+	}
+	function make_variety(species,name, displayId) {
+		id = get_next_id_for_variety()
+		/cactusdb/Plant/Variety[{~id}] <- {
+			~id,
+			~species,
+			varietyName: name,
+			~displayId
+		}
+		id
+	}
+	/*function make_display_plant(species,variety,memberid,origin,misc) {
+		make_plant(find_variety_by_display(find_species_by_display(species),variety),memberid,origin,misc)
 	}*/
-
+	function make_history_event_kind(name) {
+		kind = /cactusdb/Plant/Next/Event/Kind/id
+		/cactusdb/Plant/Next/Event/Kind/id++
+		/cactusdb/Plant/History/Kinds[{kind:kind}] <- {
+			~kind,
+			~name
+		}
+		kind
+	}
+	function make_history_event(plantid, kind, notes,eventDate) {
+		eid = get_next_event_for_plant(plantid)
+		string eventid = "{plantid}-{eid}"
+		/cactusdb/Plants[{id:plantid}]/eventcount++
+		/cactusdb/Plant/History/Event[{~eventid}] <- {
+			~eventid,
+			~plantid,
+			~eventDate,
+			~kind,
+			~notes
+		}
+		/cactusdb/Plant/History/LastEvent[{~plantid,~kind}] <- {
+			~plantid,
+			~kind,
+			~eventDate
+		}
+		eventid
+	}
+	function get_plant_events(plantid) {
+		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid])
+	}
+	function get_plant_filtered_events(plantid,kind) {
+		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid, kind == kind])
+	}
+	function get_event_kinds() {
+		DbSet.iterator(/cactusdb/Plant/History/Kinds[])
+	}
 }
 

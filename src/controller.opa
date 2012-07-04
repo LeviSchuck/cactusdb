@@ -16,7 +16,9 @@ function start(url) {
         case {path: ["main"] ...} : Resource.page("Cactus DB", View.page(""))
         case {path: ["meta" | path ] ... } : Resource.page("Meta Information", View.meta(path))
         case {path: ["aging" | path ] ... } : Resource.page("Aging Report", View.aging(path))
-        case {~path ...}: Resource.error_page("404 Not Found", <h1>Bad URL</h1>,{wrong_address})
+        case {path: ["plant" | path ] ... } : Resource.page("Plant", View.plant(path))
+        case {path: ["find" | path ] ... } : Resource.page("Search", View.find(path))
+        case {~path ...}: Resource.error_page("404 Not Found", <h1>Bad URL {path}</h1>,{wrong_address})
     }
 }
 custom = {
@@ -26,7 +28,7 @@ custom = {
 }
 
 Server.start({
-    port: 58000, netmask:255.0.0.0, encryption: {no_encryption}, name:"cactusdb"
+    port: 58000, netmask:0.0.0.0, encryption: {no_encryption}, name:"cactusdb"
 }, [
 	{ register : 
 		[ { doctype : { html5 } },

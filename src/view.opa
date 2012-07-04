@@ -1,65 +1,19 @@
 module View {
-  
-  /*function template(content) {
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="./index.html">cactusdb</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a href="/statistics">Statistics</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id=#main class="container-fluid">
-      <div class="row-fluid">     
-        {content} 
-      </div>
-      <hr>
-      <footer>
-        <p>cactusdb</p>
-      </footer>
-    </div>
-  
-  }
 
-  function statistics() {
-    tbody = Iter.fold(
-      function(page, acc) { <>{acc}<tr><td>{page.path}</td><td>{page.counter}</td></tr></> },
-      Model.statistics(), <></>
-    )
-    content =
-      <h3>Page statistics</h3>
-      <table class="table table-bordered">
-        <thead><tr><td>Path</td><td>Counter</td></tr></thead>
-        <tbody>{tbody}</tbody>
-      </table>
-    template(content)
-  }
-
-  function page(path) {
-    content =
-      <div class="hero-unit">
-        <h3>{path}</h3>
-        <textarea id=#content rows="15">{ Model.get_content(path) }</textarea>
-        <button class="btn" onclick={ function(_) Model.set_content(path, Dom.get_value(#content)) }>
-          Save
-        </button>
-      </div>;
-    template(content)
-  }*/
   function template(content) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="/main">Cactus DB</a>
+          <span class="form-search pull-right">
+            <input id=#searchtext type="text" class="input-medium search-query" />
+            <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
+          </>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="/main">Main</a></li>
-              <li><a href="/meta">Meta</a></li>
               <li><a href="/aging">Aging Report</a></li>
+              <li><a href="/meta">Meta</a></li>
             </ul>
           </>
         </>
@@ -75,8 +29,12 @@ module View {
       </footer>
     </div>
   }
-  function page(path) {
 
+  function page(path) {
+    /*type reqKind = {root} or {}
+    match(path) {
+      case {path : [] ...} : 
+    }*/
     content = 
       <div class="">
         Eggs brah <br />
@@ -92,11 +50,33 @@ module View {
     template(content)
   }
   function aging(path) {
+
     content = 
       <div>
       Aging: {path}
       </>
     template(content)
+  }
+  function find(path) {
+
+    content = 
+      <div>
+      Find: {path}
+      </>
+    template(content)
+  }
+  function plant(path) {
+    content = 
+      <div>
+      Plant: {path}
+      </>
+    template(content)
+  }
+
+
+  function findPlant() {
+    Dom.clear_value(#searchtext)
+    void
   }
 }
 
