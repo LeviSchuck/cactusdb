@@ -12,20 +12,20 @@ module View {
   function template(content) {
     <div class="navbar">
       <div class="navbar-inner">
-        <div class="container-fluid">
+        <div class="container">
           <a class="brand span2" href="/main">Cactus DB</a>
-          
-          <div class="nav-collapse collapse">
+          <span class="nav-collapse collapse">
+            <span class="form-search pull-right" style="text-align: right">
+              <input id=#searchtext type="text" class="input-medium search-query" />
+              <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
+            </>
             <ul class="nav">
               <li><a href="/main">Main</a></li>
               <li><a href="/aging">Aging Report</a></li>
               <li><a href="/meta">Meta</a></li>
             </ul>
           </>
-          <span class="form-search pull-right" style="text-align: right">
-            <input id=#searchtext type="text" class="input-medium search-query" />
-            <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
-          </>
+          
         </>
       </>
     </>
