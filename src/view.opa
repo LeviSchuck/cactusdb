@@ -1,9 +1,18 @@
 module View {
-
+  function pageWrapper(title, content) {
+    Resource.full_page(
+      title,
+      content,
+      <meta name="viewport" content="width=device-width, initial-scale=1.0 , maximum-scale=1.0"/>
+      ,
+      web_response {success},
+      Resource_private.default_customizers
+      );
+  }
   function template(content) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="row-fluid">
+        <div class="container-fluid">
           <a class="brand span2" href="/main">Cactus DB</a>
           
           <div class="nav-collapse collapse">
