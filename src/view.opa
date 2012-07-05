@@ -98,15 +98,34 @@ module View {
       {variety.displayId} : {variety.varietyName}
     </>
   }
-  function meta_form_family() {
-    #addingstuff = <h3>Beans</h3>
+  function meta_form_family() { 
+    <span class="plant_add_family input-append">
+      <input id=#newfamilyname size="20" type="text" />
+      <a class="btn" onclick={
+        function(_){
+          famname = Dom.get_value(#newfamilyname)
+          Dom.clear_value(#newfamilyname)
+          id = Model.make_family(famname)
+          result = 
+          <li>
+          {
+            meta_family(Model.get_plant_family(id))
+          }
+          </li>
+
+          #meta_family_list =+ result
+          void
+        }
+      }>Add Family!</a>
+    </>
   }
   function meta(path) {
 
     content = 
-      <div>
+      <div id=#meta_root>
       <h1>Meta Data: {path}</h1>
       <h2>Families</>
+      <ul id=#meta_family_list>
       {
         Iter.map(function(a) {
             <li> {
@@ -114,11 +133,10 @@ module View {
             }</li>
           }, Model.get_plant_families())
       }
-      <a class="btn btn-primary" onclick={function(_){meta_form_family()}}>Add A Family!</a>
-      <div id=#addingstuff>
-
-      </div>
+      </ul>
+      {meta_form_family()}
       </>
+
     template(content)
   }
   function aging(path) {

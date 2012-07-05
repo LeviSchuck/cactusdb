@@ -269,6 +269,9 @@ module Model {
 	function get_plant_families() {
 		DbSet.iterator(/cactusdb/Plant/Family[])
 	}
+	function get_plant_family(id) {
+		/cactusdb/Plant/Family[{~id}]
+	}
 	function get_plant_genus(family) {
 		DbSet.iterator(/cactusdb/Plant/Genus[family == family])
 	}
