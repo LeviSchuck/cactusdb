@@ -54,15 +54,23 @@ module View {
   function meta_family(Plant.Family.t family) {
     <div class="plant_family">
       <h3>{family.familyName}</h3>
-      <ul>
+      <ul id={"family_{family.id}_list"}>
         {
           Iter.map(function(genus) {
             <li> {
             meta_genus(genus)
             }</li>
-          }, Model.get_plant_genus(family.id))
+          }, Model.get_plant_genus_by_family(family.id))
         }
       </ul>
+      <a class="btn" onclick={function(_){
+        Dom.set_value(#newgenusfamilyid,"{family.id}")
+        #newgenusfamily = family.familyName
+        Dom.remove_class(#newgenus,"hide")
+        Dom.scroll_into_view(#newgenus)
+        Dom.give_focus(#newgenusname)
+        void
+      }}>Add Genus</a>
     </div>
   }
   function meta_genus(genus) {
@@ -74,7 +82,7 @@ module View {
             <li> {
             meta_species(spec)
             }</li>
-          }, Model.get_plant_species(genus.id))
+          }, Model.get_plant_species_by_genus(genus.id))
         }
       </ul>
     </div>
@@ -88,7 +96,7 @@ module View {
             <li> {
             meta_variety(a)
             }</li>
-          }, Model.get_plant_variety(species.id))
+          }, Model.get_plant_variety_by_species(species.id))
         }
       </ul>
     </div>
@@ -98,25 +106,56 @@ module View {
       {variety.displayId} : {variety.varietyName}
     </>
   }
+  function meta_form_family_submit() {
+    famname = Dom.get_value(#newfamilyname)
+    Dom.clear_value(#newfamilyname)
+    id = Model.make_family(famname)
+    result = 
+    <li>
+    {
+      meta_family(Model.get_plant_family(id))
+    }
+    </li>
+
+    #meta_family_list =+ result
+    void
+  }
   function meta_form_family() { 
     <span class="plant_add_family input-append">
-      <input id=#newfamilyname size="20" type="text" />
-      <a class="btn" onclick={
-        function(_){
-          famname = Dom.get_value(#newfamilyname)
-          Dom.clear_value(#newfamilyname)
-          id = Model.make_family(famname)
-          result = 
-          <li>
-          {
-            meta_family(Model.get_plant_family(id))
-          }
-          </li>
-
-          #meta_family_list =+ result
-          void
-        }
-      }>Add Family!</a>
+      <input id=#newfamilyname size="20" type="text" onnewline={function(_){meta_form_family_submit()}} />
+      <a class="btn" onclick={function(_){meta_form_family_submit()}}>Add Family!</a>
+    </>
+  }
+  function meta_form_genus_submit() {
+    famidstring = Dom.get_value(#newgenusfamilyid);
+    famparser = parser {
+      case p = ([0-9+]) : Int.of_string(Text.to_string(p))
+      case .* : (-1)
+    };
+    famid = Parser.parse(famparser,famidstring);
+    genusname = Dom.get_value(#newgenusname);
+    #newgenusfamily = "";
+    Dom.clear_value(#newgenusfamilyid);
+    Dom.clear_value(#newgenusname);
+    Dom.scroll_to_bottom(#{"family_{famid}_list"})
+    id = Model.make_genus(famid,genusname);
+    result = 
+    <li>
+    {
+      meta_genus(Model.get_plant_genus(id))
+    }
+    </li>
+    #{"family_{famid}_list"} =+ result
+    Dom.add_class(#newgenus,"hide")
+    
+    void
+  }
+  function meta_form_genus() {
+    <span class="plant_add_genus input-append hide" id=#newgenus>
+      <span id=#newgenusfamily type="text" size="10" class="uneditable-input" ></span> : 
+      <input id=#newgenusfamilyid type="hidden" />
+      <input id=#newgenusname size="10" type="text" onnewline={function(_){meta_form_genus_submit()}}/>
+      <a class="btn" onclick={function(_){meta_form_genus_submit()}}>Add Genus!</a>
     </>
   }
   function meta(path) {
@@ -128,13 +167,14 @@ module View {
       <ul id=#meta_family_list>
       {
         Iter.map(function(a) {
-            <li> {
+            <li id={"meta_family_{a.id}"}> {
             meta_family(a)
             }</li>
           }, Model.get_plant_families())
       }
       </ul>
-      {meta_form_family()}
+      {meta_form_family()}<br />
+      {meta_form_genus()}
       </>
 
     template(content)

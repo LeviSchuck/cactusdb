@@ -272,13 +272,22 @@ module Model {
 	function get_plant_family(id) {
 		/cactusdb/Plant/Family[{~id}]
 	}
-	function get_plant_genus(family) {
+	function get_plant_genus(id) {
+		/cactusdb/Plant/Genus[{~id}]
+	}
+	function get_plant_species(id) {
+		/cactusdb/Plant/Species[{~id}]
+	}
+	function get_plant_variety(id) {
+		/cactusdb/Plant/Variety[{~id}]
+	}
+	function get_plant_genus_by_family(family) {
 		DbSet.iterator(/cactusdb/Plant/Genus[family == family])
 	}
-	function get_plant_species(genus) {
+	function get_plant_species_by_genus(genus) {
 		DbSet.iterator(/cactusdb/Plant/Species[genus == genus])
 	}
-	function get_plant_variety(species) {
+	function get_plant_variety_by_species(species) {
 		DbSet.iterator(/cactusdb/Plant/Variety[species == species])
 	}
 }
