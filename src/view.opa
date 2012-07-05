@@ -1,3 +1,4 @@
+import stdlib.web.client
 module View {
   function pageWrapper(title, content) {
     Resource.full_page(
@@ -55,7 +56,8 @@ module View {
   function meta(path) {
     content = 
       <div>
-      Meta: {path}
+      <h1>Meta Data: {path}</h1>
+      
       </>
     template(content)
   }
@@ -85,7 +87,20 @@ module View {
 
 
   function findPlant() {
+    searchtext = Dom.get_value(#searchtext)
     Dom.clear_value(#searchtext)
+    search_type = parser {
+      case [0-9]+ "-" [0-9]+ "-" [0-9]+ : {fullDisplayId}
+      case [0-9]+ "-" [0-9]+ : {speciesVariantAll}
+      case (.*) : {other}
+    }
+    st = Parser.parse(search_type,searchtext)
+    match(st) {
+      case {fullDisplayId} : Client.goto("/plant/" ^ searchtext)
+      case {speciesVariantAll} : Client.goto("/find/plants/" ^ searchtext)
+      case {other} : Client.goto("/find/all/" ^ searchtext)
+    }
+
     void
   }
 }
