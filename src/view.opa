@@ -10,7 +10,7 @@ module View {
       );
   }
   function template(content) {
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar">
       <div class="navbar-inner">
         <div class="container-fluid">
           <a class="brand span2" href="/main">Cactus DB</a>
