@@ -7,7 +7,7 @@ module View {
       <meta name="viewport" content="width=device-width, initial-scale=1.0 , maximum-scale=1.0"/>
       ,
       web_response {success},
-      Resource_private.default_customizers
+      {nil}
       );
   }
   function template(content) {
@@ -42,10 +42,7 @@ module View {
   }
 
   function page(path) {
-    /*type reqKind = {root} or {}
-    match(path) {
-      case {path : [] ...} : 
-    }*/
+    
     content = 
       <div class="">
         Eggs brah <br />
@@ -53,11 +50,74 @@ module View {
       </>
     template(content)
   }
+
+  function meta_family(Plant.Family.t family) {
+    <div class="plant_family">
+      <h3>{family.familyName}</h3>
+      <ul>
+        {
+          Iter.map(function(genus) {
+            <li> {
+            meta_genus(genus)
+            }</li>
+          }, Model.get_plant_genus(family.id))
+        }
+      </ul>
+    </div>
+  }
+  function meta_genus(genus) {
+    <div class="plant_genus">
+      <h4>{genus.genusName}</h4>
+      <ul>
+        {
+          Iter.map(function(spec) {
+            <li> {
+            meta_species(spec)
+            }</li>
+          }, Model.get_plant_species(genus.id))
+        }
+      </ul>
+    </div>
+  }
+  function meta_species(species) {
+    <div class="plant_genus">
+      <h4>{species.displayId} : {species.speciesName}</h4>
+      <ul>
+        {
+          Iter.map(function(a) {
+            <li> {
+            meta_variety(a)
+            }</li>
+          }, Model.get_plant_variety(species.id))
+        }
+      </ul>
+    </div>
+  }
+  function meta_variety(variety) {
+    <span class="plant_genus">
+      {variety.displayId} : {variety.varietyName}
+    </>
+  }
+  function meta_form_family() {
+    #addingstuff = <h3>Beans</h3>
+  }
   function meta(path) {
+
     content = 
       <div>
       <h1>Meta Data: {path}</h1>
-      
+      <h2>Families</>
+      {
+        Iter.map(function(a) {
+            <li> {
+            meta_family(a)
+            }</li>
+          }, Model.get_plant_families())
+      }
+      <a class="btn btn-primary" onclick={function(_){meta_form_family()}}>Add A Family!</a>
+      <div id=#addingstuff>
+
+      </div>
       </>
     template(content)
   }
@@ -92,12 +152,14 @@ module View {
     search_type = parser {
       case [0-9]+ "-" [0-9]+ "-" [0-9]+ : {fullDisplayId}
       case [0-9]+ "-" [0-9]+ : {speciesVariantAll}
+      case [0-9]+ : {speciesAll}
       case (.*) : {other}
     }
     st = Parser.parse(search_type,searchtext)
     match(st) {
       case {fullDisplayId} : Client.goto("/plant/" ^ searchtext)
       case {speciesVariantAll} : Client.goto("/find/plants/" ^ searchtext)
+      case {speciesAll} : Client.goto("/find/plants/" ^ searchtext)
       case {other} : Client.goto("/find/all/" ^ searchtext)
     }
 

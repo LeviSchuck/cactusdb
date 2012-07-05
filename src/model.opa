@@ -266,5 +266,17 @@ module Model {
 	function get_event_kinds() {
 		DbSet.iterator(/cactusdb/Plant/History/Kinds[])
 	}
+	function get_plant_families() {
+		DbSet.iterator(/cactusdb/Plant/Family[])
+	}
+	function get_plant_genus(family) {
+		DbSet.iterator(/cactusdb/Plant/Genus[family == family])
+	}
+	function get_plant_species(genus) {
+		DbSet.iterator(/cactusdb/Plant/Species[genus == genus])
+	}
+	function get_plant_variety(species) {
+		DbSet.iterator(/cactusdb/Plant/Variety[species == species])
+	}
 }
 
