@@ -50,10 +50,25 @@ module View {
       </>
     template(content)
   }
+  function meta_family_add_btn(famid) {
+    <a onclick={function(_){
+      #{"meta_family_add_area_{famid}"} = meta_form_genus(famid)
+    }} id=#{"family_add_genus_{famid}"}><i class="icon-plus"></i></a>
+  }
+  function meta_genus_add_btn(id) {
+    <a onclick={function(_){
+      #{"meta_genus_add_area_{id}"} = meta_form_species(id)
+    }} id=#{"genus_add_genus_{id}"}><i class="icon-plus"></i></a>
+  }
+  function meta_species_add_btn(id) {
+    <a onclick={function(_){
+      #{"meta_species_add_area_{id}"} = meta_form_variety(id)
+    }} id=#{"species_add_genus_{id}"}><i class="icon-plus"></i></a>
+  }
 
   function meta_family(Plant.Family.t family) {
     <div class="plant_family">
-      <h3>{family.familyName}</h3>
+      <h3>{family.familyName}<span id=#{"meta_family_add_area_{family.id}"}>{meta_family_add_btn(family.id)}</span></h3>
       <ul id={"family_{family.id}_list"}>
         {
           Iter.map(function(genus) {
@@ -63,20 +78,12 @@ module View {
           }, Model.get_plant_genus_by_family(family.id))
         }
       </ul>
-      <a class="btn" onclick={function(_){
-        Dom.set_value(#newgenusfamilyid,"{family.id}")
-        #newgenusfamily = family.familyName
-        Dom.remove_class(#newgenus,"hide")
-        Dom.scroll_into_view(#newgenus)
-        Dom.give_focus(#newgenusname)
-        void
-      }}>Add Genus</a>
     </div>
   }
   function meta_genus(genus) {
     <div class="plant_genus">
-      <h4>{genus.genusName}</h4>
-      <ul>
+      <h4>{genus.genusName}<span id=#{"meta_genus_add_area_{genus.id}"}>{meta_genus_add_btn(genus.id)}</span></h4>
+      <ul id={"genus_{genus.id}_list"}>
         {
           Iter.map(function(spec) {
             <li> {
@@ -89,8 +96,8 @@ module View {
   }
   function meta_species(species) {
     <div class="plant_genus">
-      <h4>{species.displayId} : {species.speciesName}</h4>
-      <ul>
+      <h4>{species.displayId} : {species.speciesName} <span id=#{"meta_species_add_area_{species.id}"}>{meta_species_add_btn(species.id)}</span></h4>
+      <ul id={"species_{species.id}_list"}>
         {
           Iter.map(function(a) {
             <li> {
@@ -106,6 +113,46 @@ module View {
       {variety.displayId} : {variety.varietyName}
     </>
   }
+  function meta_form_family() { 
+    <span class="plant_add_family input-append">
+      <input id=#newfamilyname size="20" type="text" onnewline={function(_){meta_form_family_submit()}} />
+      <a class="btn" onclick={function(_){meta_form_family_submit()}}>Add Family!</a>
+    </>
+  }
+  function meta_form_genus(id) {
+    <span class="plant_add_genus input-append" id=#{"newgenus_{id}"}>
+      <input id=#{"newgenusname_{id}"} size="10" type="text" onnewline={function(_){meta_form_genus_submit(id)}}/>
+      <a class="btn" onclick={function(_){meta_form_genus_submit(id)}}><i class="icon-plus"></i></a>
+    </>
+  }
+  function meta_form_species(id) {
+    <span class="plant_add_species control-group" id=#{"newspecies_{id}"}>
+      <span class="controls">
+        <span class="input-prepend">
+          <span class="add-on">#</>
+          <input id=#{"newspeciesnum_{id}"} size="3" type="text" class="span1" />
+        </>
+        <span class="input-append">
+          <input id=#{"newspeciesname_{id}"} size="10" type="text" onnewline={function(_){meta_form_species_submit(id)}}/>
+          <a class="btn" onclick={function(_){meta_form_species_submit(id)}}><i class="icon-plus"></i></a>
+        </>
+      </>
+    </>
+  }
+  function meta_form_variety(id) {
+    <span class="plant_add_variety control-group" id=#{"newvariety_{id}"}>
+      <span class="controls">
+        <span class="input-prepend">
+          <span class="add-on">#</>
+          <input id=#{"newvarietynum_{id}"} size="3" type="text" class="span1" />
+        </>
+        <span class="input-append">
+          <input id=#{"newvarietyname_{id}"} size="10" type="text" onnewline={function(_){meta_form_variety_submit(id)}}/>
+          <a class="btn" onclick={function(_){meta_form_variety_submit(id)}}><i class="icon-plus"></i></a>
+        </>
+      </>
+    </>
+  }
   function meta_form_family_submit() {
     famname = Dom.get_value(#newfamilyname)
     Dom.clear_value(#newfamilyname)
@@ -118,46 +165,80 @@ module View {
     </li>
 
     #meta_family_list =+ result
+    #{"meta_family_add_area_{id}"} = meta_family_add_btn(id);
     void
   }
-  function meta_form_family() { 
-    <span class="plant_add_family input-append">
-      <input id=#newfamilyname size="20" type="text" onnewline={function(_){meta_form_family_submit()}} />
-      <a class="btn" onclick={function(_){meta_form_family_submit()}}>Add Family!</a>
-    </>
-  }
-  function meta_form_genus_submit() {
-    famidstring = Dom.get_value(#newgenusfamilyid);
-    famparser = parser {
-      case p = ([0-9+]) : Int.of_string(Text.to_string(p))
-      case .* : (-1)
-    };
-    famid = Parser.parse(famparser,famidstring);
-    genusname = Dom.get_value(#newgenusname);
-    #newgenusfamily = "";
-    Dom.clear_value(#newgenusfamilyid);
-    Dom.clear_value(#newgenusname);
-    Dom.scroll_to_bottom(#{"family_{famid}_list"})
-    id = Model.make_genus(famid,genusname);
-    result = 
-    <li>
-    {
-      meta_genus(Model.get_plant_genus(id))
+  function meta_form_genus_submit(parentid) {
+    genusname = Dom.get_value(#{"newgenusname_{parentid}"});
+    if(String.length(genusname) > 0) {
+      id = Model.make_genus(parentid,genusname);
+      result = 
+      <li>
+      {
+        meta_genus(Model.get_plant_genus(id))
+      }
+      </li>
+      #{"family_{parentid}_list"} += result
     }
-    </li>
-    #{"family_{famid}_list"} =+ result
-    Dom.add_class(#newgenus,"hide")
+    #{"meta_family_add_area_{parentid}"} = meta_family_add_btn(parentid);
+    void
+  }
+  function meta_form_species_submit(parentid) {
+    speciesname = Dom.get_value(#{"newspeciesname_{parentid}"});
+    speciesnum = Parser.parse(parser {
+      case n = ([0-9]+) : Int.of_string(Text.to_string(n))
+      case .* : -1
+    }, Dom.get_value(#{"newspeciesnum_{parentid}"}))
+    if(speciesnum == -1) {
+      Dom.add_class(#{"newspecies_{parentid}"},"error")
+    }
+    if(String.length(speciesname) > 0 && speciesnum >= 0) {
+      id = Model.make_species(parentid,speciesname,speciesnum);
+      result = 
+      <li>
+      {
+        meta_species(Model.get_plant_species(id))
+      }
+      </li>
+      #{"genus_{parentid}_list"} += result
+      #{"meta_genus_add_area_{parentid}"} = meta_genus_add_btn(parentid);
+    }else{
+      if(String.length(speciesname) == 0) {
+        #{"meta_genus_add_area_{parentid}"} = meta_genus_add_btn(parentid);
+      }
+    }
+
     
     void
   }
-  function meta_form_genus() {
-    <span class="plant_add_genus input-append hide" id=#newgenus>
-      <span id=#newgenusfamily type="text" size="10" class="uneditable-input" ></span> : 
-      <input id=#newgenusfamilyid type="hidden" />
-      <input id=#newgenusname size="10" type="text" onnewline={function(_){meta_form_genus_submit()}}/>
-      <a class="btn" onclick={function(_){meta_form_genus_submit()}}>Add Genus!</a>
-    </>
+  function meta_form_variety_submit(parentid) {
+    varietyname = Dom.get_value(#{"newvarietyname_{parentid}"});
+    varietynum = Parser.parse(parser {
+      case n = ([0-9]+) : Int.of_string(Text.to_string(n))
+      case .* : -1
+    }, Dom.get_value(#{"newvarietynum_{parentid}"}))
+    if(varietynum == -1) {
+      Dom.add_class(#{"newvariety_{parentid}"},"error")
+    }
+    if(String.length(varietyname) > 0 && varietynum >= 0) {
+      id = Model.make_variety(parentid,varietyname,varietynum);
+      result = 
+      <li>
+      {
+        meta_variety(Model.get_plant_variety(id))
+      }
+      </li>
+      #{"species_{parentid}_list"} += result
+      #{"meta_species_add_area_{parentid}"} = meta_species_add_btn(parentid);
+    }else{
+      if(String.length(varietyname) == 0) {
+        #{"meta_species_add_area_{parentid}"} = meta_species_add_btn(parentid);
+      }
+    }
+    
+    void
   }
+  
   function meta(path) {
 
     content = 
@@ -174,7 +255,6 @@ module View {
       }
       </ul>
       {meta_form_family()}<br />
-      {meta_form_genus()}
       </>
 
     template(content)
