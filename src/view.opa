@@ -147,7 +147,7 @@ module View {
       <span class="controls">
         <span class="input-prepend">
           <span class="add-on">#</>
-          <input id=#{"newvarietynum_{id}"} size="3" type="text" class="span1" />
+          <input id=#{"newvarietynum_{id}"} size="3" type="text" class="span1" onnewline={function(_){meta_form_variety_submit(id)}} />
         </>
         <span class="input-append">
           <input id=#{"newvarietyname_{id}"} size="10" type="text" onnewline={function(_){meta_form_variety_submit(id)}}/>
@@ -223,7 +223,7 @@ module View {
     if(varietynum == -1) {
       Dom.add_class(#{"newvariety_{parentid}"},"error")
     }
-    if(String.length(varietyname) > 0 && varietynum >= 0) {
+    if(varietynum >= 0) {
       id = Model.make_variety(parentid,varietyname,varietynum);
       result = 
       <li>

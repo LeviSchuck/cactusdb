@@ -285,10 +285,10 @@ module Model {
 		DbSet.iterator(/cactusdb/Plant/Genus[family == family; order +genusName])
 	}
 	function get_plant_species_by_genus(genus) {
-		DbSet.iterator(/cactusdb/Plant/Species[genus == genus; order +speciesName])
+		DbSet.iterator(/cactusdb/Plant/Species[genus == genus; order +displayId])
 	}
 	function get_plant_variety_by_species(species) {
-		DbSet.iterator(/cactusdb/Plant/Variety[species == species; order +varietyName])
+		DbSet.iterator(/cactusdb/Plant/Variety[species == species; order +displayId])
 	}
 }
 
