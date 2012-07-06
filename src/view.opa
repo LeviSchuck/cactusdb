@@ -68,6 +68,19 @@ module View {
       }
       </ul>
       {Meta.meta_form_family()}<br />
+      <hr />
+
+      <h1>Events</h1>
+      <ul id=#meta_event_kind_list>
+      {
+        Iter.map(function(a) {
+            <li id={"meta_event_kind_{a.kind}"}> {
+            Meta.meta_event_kind(a)
+            }</li>
+          }, Model.get_event_kinds())
+      }
+      </ul>
+      {Meta.meta_form_event_kind()}<br />
       </>
 
     template(content)

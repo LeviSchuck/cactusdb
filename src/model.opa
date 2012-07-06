@@ -243,9 +243,9 @@ module Model {
 		}
 		id
 	}
-	/*function make_display_plant(species,variety,memberid,origin,misc) {
-		make_plant(find_variety_by_display(find_species_by_display(species),variety),memberid,origin,misc)
-	}*/
+	function save_history_event_kind(kind,name) {
+		/cactusdb/Plant/History/Kinds[{~kind}]/name <- name
+	}
 	function make_history_event_kind(name) {
 		kind = /cactusdb/Plant/Next/Event/Kind/id
 		/cactusdb/Plant/Next/Event/Kind/id++
@@ -273,6 +273,7 @@ module Model {
 		}
 		eventid
 	}
+
 	function get_plant_events(plantid) {
 		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid])
 	}
@@ -284,6 +285,12 @@ module Model {
 	}
 	function get_plant_families() {
 		DbSet.iterator(/cactusdb/Plant/Family[order +familyName])
+	}
+	function get_history_event_kind(kind) {
+		/cactusdb/Plant/History/Kinds[{~kind}]
+	}
+	function get_history_event(eventid) {
+		/cactusdb/Plant/History/Event[{~eventid}]
 	}
 	function get_plant_family(id) {
 		/cactusdb/Plant/Family[{~id}]

@@ -363,4 +363,60 @@ module Meta {
     
     void
   }
+  function meta_event_kind_header_save(event_kind){
+    id = event_kind.kind
+    name = Dom.get_value(#{"editevent_kindname_{id}"})
+    if(String.length(name) > 0) {
+      Model.save_history_event_kind(id,name)
+      #{"meta_event_kind_{id}"} = meta_event_kind({kind:id, ~name})
+    }else{
+      #{"meta_event_kind_{id}"} = meta_event_kind(event_kind)
+    }
+    void
+  }
+  function meta_event_kind_header_edit(event_kind) {
+    id = event_kind.kind
+    <span class="plant_edit_event_kind control-group" id=#{"editevent_kind_{id}"}>
+      <span class="controls">
+        <span class="input-prepend input-append">
+          <span class="add-on">Event Kind Name:</>
+          <input id=#{"editevent_kindname_{id}"} size="20" type="text" class="span3" onnewline={function(_){
+            meta_event_kind_header_save(event_kind);
+          }} value={event_kind.name} />
+        </>
+        <a class="btn" onclick={function(_){
+            meta_event_kind_header_save(event_kind);
+          }}><i class="icon-ok"></i></>
+      </>
+    </>
+  }
+  function meta_event_kind(event) {
+  	<h2 id=#{"event_{event.kind}"} onclick={function(_){
+          #{"meta_event_kind_{event.kind}"} = meta_event_kind_header_edit(event);
+          Dom.give_focus(#{"editevent_kindname_{event.kind}"});
+          void
+      }}>
+  		{event.name}
+  	</h2>
+  }
+  function meta_form_event_kind() { 
+    <span class="plant_add_event_kind input-append">
+      <input id=#newevent_kindname size="20" type="text" onnewline={function(_){meta_form_event_kind_submit()}} />
+      <a class="btn" onclick={function(_){meta_form_event_kind_submit()}}>Add Event Kind!</a>
+    </>
+  }
+  function meta_form_event_kind_submit() {
+    famname = Dom.get_value(#newevent_kindname)
+    Dom.clear_value(#newevent_kindname)
+    id = Model.make_history_event_kind(famname)
+    result = 
+    <li>
+    {
+      meta_event_kind(Model.get_history_event_kind(id))
+    }
+    </li>
+
+    #meta_event_kind_list =+ result
+    void
+  }
 }
