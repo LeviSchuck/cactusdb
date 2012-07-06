@@ -189,7 +189,12 @@ module Model {
 
 		DbSet.iterator(/cactusdb/Plants[species==spec])
 	}
-
+	function save_family(id,name) {
+		/cactusdb/Plant/Family[{~id}] <- {
+			~id,
+			familyName: name
+		}
+	}
 	function make_family(name) {
 		id = get_next_id_for_family()
 		/cactusdb/Plant/Family[{~id}] <- {
@@ -197,6 +202,9 @@ module Model {
 			familyName: name
 		}
 		id
+	}
+	function save_genus(id,name) {
+		/cactusdb/Plant/Genus[{~id}]/genusName <- name
 	}
 	function make_genus(family,name) {
 		id = get_next_id_for_genus()
@@ -206,6 +214,10 @@ module Model {
 			genusName: name
 		}
 		id
+	}
+	function save_species(id,name,displayId) {
+		/cactusdb/Plant/Species[{~id}]/speciesName <- name
+		/cactusdb/Plant/Species[{~id}]/displayId <- displayId
 	}
 	function make_species(genus,name, displayId) {
 		id = get_next_id_for_species()

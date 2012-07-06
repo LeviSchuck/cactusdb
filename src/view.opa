@@ -68,10 +68,47 @@ module View {
       Dom.give_focus(#{"newvarietynum_{id}"});
     }} id=#{"species_add_genus_{id}"}><i class="icon-plus"></i></a>
   }
-
+  function meta_family_header_save(family){
+    id = family.id
+    name = Dom.get_value(#{"editfamilyname_{id}"})
+    if(String.length(name) > 0) {
+      Model.save_family(id,name)
+      #{"meta_family_header_{family.id}"} = meta_family_header({~id, familyName : name})
+    }else{
+      #{"meta_family_header_{family.id}"} = meta_family_header(family)
+    }
+    void
+  }
+  function meta_family_header_edit(family) {
+    id = family.id
+    <span class="plant_edit_family control-group" id=#{"editfamily_{id}"}>
+      <span class="controls">
+        <span class="input-prepend input-append">
+          <span class="add-on">Family Name:</>
+          <input id=#{"editfamilyname_{id}"} size="20" type="text" class="span3" onnewline={function(_){
+            meta_family_header_save(family);
+          }} value={family.familyName} />
+        </>
+        <a class="btn" onclick={function(_){
+            meta_family_header_save(family);
+          }}><i class="icon-ok"></i></>
+      </>
+    </>
+  }
+  function meta_family_header(Plant.Family.t family) {
+    <span>
+        <span onclick={function(_){
+          #{"meta_family_header_{family.id}"} = meta_family_header_edit(family);
+          Dom.give_focus(#{"editfamilyname_{family.id}"});
+        }}>{family.familyName}</span>
+        <span id=#{"meta_family_add_area_{family.id}"}>{meta_family_add_btn(family.id)}</span>
+    </span>
+  }
   function meta_family(Plant.Family.t family) {
     <div class="plant_family">
-      <h3>{family.familyName}<span id=#{"meta_family_add_area_{family.id}"}>{meta_family_add_btn(family.id)}</span></h3>
+      <h3 id=#{"meta_family_header_{family.id}"}>
+        {meta_family_header(family)}
+      </h3>
       <ul id={"family_{family.id}_list"}>
         {
           Iter.map(function(genus) {
@@ -83,9 +120,47 @@ module View {
       </ul>
     </div>
   }
+  function meta_genus_header_save(genus){
+    id = genus.id
+    name = Dom.get_value(#{"editgenusname_{id}"})
+    if(String.length(name) > 0) {
+      Model.save_genus(id,name)
+      #{"meta_genus_header_{genus.id}"} = meta_genus_header({~id, genusName : name, family: genus.family})
+    }else{
+      #{"meta_genus_header_{genus.id}"} = meta_genus_header(genus)
+    }
+    void
+  }
+  function meta_genus_header_edit(genus) {
+    id = genus.id
+    <span class="plant_edit_genus control-group" id=#{"editgenus_{id}"}>
+      <span class="controls">
+        <span class="input-prepend input-append">
+          <span class="add-on">genus Name:</>
+          <input id=#{"editgenusname_{id}"} size="20" type="text" class="span3" onnewline={function(_){
+            meta_genus_header_save(genus);
+          }} value={genus.genusName} />
+        </>
+        <a class="btn" onclick={function(_){
+            meta_genus_header_save(genus);
+          }}><i class="icon-ok"></i></>
+      </>
+    </>
+  }
+  function meta_genus_header(genus) {
+    <span>
+        <span onclick={function(_){
+          #{"meta_genus_header_{genus.id}"} = meta_genus_header_edit(genus);
+          Dom.give_focus(#{"editgenusname_{genus.id}"});
+        }}>{genus.genusName}</span>
+        <span id=#{"meta_genus_add_area_{genus.id}"}>{meta_genus_add_btn(genus.id)}</span>
+    </span>
+  }
   function meta_genus(genus) {
     <div class="plant_genus">
-      <h4>{genus.genusName}<span id=#{"meta_genus_add_area_{genus.id}"}>{meta_genus_add_btn(genus.id)}</span></h4>
+      <h4 id=#{"meta_genus_header_{genus.id}"}>
+        {meta_genus_header(genus)}
+      </h4>
       <ul id={"genus_{genus.id}_list"}>
         {
           Iter.map(function(spec) {
