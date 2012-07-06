@@ -50,19 +50,22 @@ module View {
       </>
     template(content)
   }
-  function meta_family_add_btn(famid) {
+  function meta_family_add_btn(id) {
     <a onclick={function(_){
-      #{"meta_family_add_area_{famid}"} = meta_form_genus(famid)
-    }} id=#{"family_add_genus_{famid}"}><i class="icon-plus"></i></a>
+      #{"meta_family_add_area_{id}"} = meta_form_genus(id);
+      Dom.give_focus(#{"newgenusname_{id}"});
+    }} id=#{"family_add_genus_{id}"}><i class="icon-plus"></i></a>
   }
   function meta_genus_add_btn(id) {
     <a onclick={function(_){
-      #{"meta_genus_add_area_{id}"} = meta_form_species(id)
+      #{"meta_genus_add_area_{id}"} = meta_form_species(id);
+      Dom.give_focus(#{"newspeciesnum_{id}"});
     }} id=#{"genus_add_genus_{id}"}><i class="icon-plus"></i></a>
   }
   function meta_species_add_btn(id) {
     <a onclick={function(_){
-      #{"meta_species_add_area_{id}"} = meta_form_variety(id)
+      #{"meta_species_add_area_{id}"} = meta_form_variety(id);
+      Dom.give_focus(#{"newvarietynum_{id}"});
     }} id=#{"species_add_genus_{id}"}><i class="icon-plus"></i></a>
   }
 
