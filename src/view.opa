@@ -235,9 +235,57 @@ module View {
       </ul>
     </div>
   }
+  function meta_variety_header_save(variety){
+    id = variety.id
+    name = Dom.get_value(#{"editvarietyname_{id}"})
+    varietynum = Parser.parse(parser {
+      case n = ([0-9]+) : Int.of_string(Text.to_string(n))
+      case .* : -1
+    }, Dom.get_value(#{"editvarietynum_{id}"}))
+    if(varietynum == -1) {
+      Dom.add_class(#{"editvariety_{id}"},"error")
+    }else{
+      if(String.length(name) > 0) {
+        Model.save_variety(id,name,varietynum)
+        #{"meta_variety_header_{variety.id}"} = meta_variety_header(
+          {~id, varietyName : name, species: variety.species, displayId: varietynum})
+      }else{
+        #{"meta_variety_header_{variety.id}"} = meta_variety_header(variety)
+      }
+    }
+    void
+  }
+  function meta_variety_header_edit(variety) {
+    id = variety.id
+    <span class="plant_edit_variety control-group" id=#{"editvariety_{id}"}>
+      <span class="controls">
+        <span class="input-prepend">
+          <span class="add-on">#</>
+          <input id=#{"editvarietynum_{id}"} size="3" type="text" class="span1" value={variety.displayId} />
+        </>
+        <span class="input-prepend input-append">
+          <span class="add-on">variety Name:</>
+          <input id=#{"editvarietyname_{id}"} size="20" type="text" class="span3" onnewline={function(_){
+            meta_variety_header_save(variety);
+          }} value={variety.varietyName} />
+        </>
+        <a class="btn" onclick={function(_){
+            meta_variety_header_save(variety);
+          }}><i class="icon-ok"></i></>
+      </>
+    </>
+  }
+  function meta_variety_header(variety) {
+    <span>
+        <span onclick={function(_){
+          #{"meta_variety_header_{variety.id}"} = meta_variety_header_edit(variety);
+          Dom.give_focus(#{"editvarietyname_{variety.id}"});
+        }}>{variety.displayId} : {variety.varietyName}</span>
+    </span>
+  }
   function meta_variety(variety) {
-    <span class="plant_genus">
-      {variety.displayId} : {variety.varietyName}
+    <span class="plant_genus" id=#{"meta_variety_header_{variety.id}"}>
+      {meta_variety_header(variety)}
     </>
   }
   function meta_form_family() { 

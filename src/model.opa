@@ -229,6 +229,10 @@ module Model {
 		}
 		id
 	}
+	function save_variety(id,name,displayId) {
+		/cactusdb/Plant/Variety[{~id}]/varietyName <- name
+		/cactusdb/Plant/Variety[{~id}]/displayId <- displayId
+	}
 	function make_variety(species,name, displayId) {
 		id = get_next_id_for_variety()
 		/cactusdb/Plant/Variety[{~id}] <- {
