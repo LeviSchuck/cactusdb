@@ -172,9 +172,58 @@ module View {
       </ul>
     </div>
   }
+  function meta_species_header_save(species){
+    id = species.id
+    name = Dom.get_value(#{"editspeciesname_{id}"})
+    speciesnum = Parser.parse(parser {
+      case n = ([0-9]+) : Int.of_string(Text.to_string(n))
+      case .* : -1
+    }, Dom.get_value(#{"editspeciesnum_{id}"}))
+    if(speciesnum == -1) {
+      Dom.add_class(#{"editspecies_{id}"},"error")
+    }else{
+      if(String.length(name) > 0) {
+        Model.save_species(id,name,speciesnum)
+        #{"meta_species_header_{species.id}"} = meta_species_header(
+          {~id, speciesName : name, genus: species.genus, displayId: speciesnum})
+      }else{
+        #{"meta_species_header_{species.id}"} = meta_species_header(species)
+      }
+    }
+    void
+  }
+  function meta_species_header_edit(species) {
+    id = species.id
+    <span class="plant_edit_species control-group" id=#{"editspecies_{id}"}>
+      <span class="controls">
+        <span class="input-prepend">
+          <span class="add-on">#</>
+          <input id=#{"editspeciesnum_{id}"} size="3" type="text" class="span1" value={species.displayId} />
+        </>
+        <span class="input-prepend input-append">
+          <span class="add-on">species Name:</>
+          <input id=#{"editspeciesname_{id}"} size="20" type="text" class="span3" onnewline={function(_){
+            meta_species_header_save(species);
+          }} value={species.speciesName} />
+        </>
+        <a class="btn" onclick={function(_){
+            meta_species_header_save(species);
+          }}><i class="icon-ok"></i></>
+      </>
+    </>
+  }
+  function meta_species_header(species) {
+    <span>
+        <span onclick={function(_){
+          #{"meta_species_header_{species.id}"} = meta_species_header_edit(species);
+          Dom.give_focus(#{"editspeciesname_{species.id}"});
+        }}>{species.displayId} : {species.speciesName}</span>
+        <span id=#{"meta_species_add_area_{species.id}"}>{meta_species_add_btn(species.id)}</span>
+    </span>
+  }
   function meta_species(species) {
     <div class="plant_genus">
-      <h4>{species.displayId} : {species.speciesName} <span id=#{"meta_species_add_area_{species.id}"}>{meta_species_add_btn(species.id)}</span></h4>
+      <h4 id=#{"meta_species_header_{species.id}"}>{meta_species_header(species)}</h4>
       <ul id={"species_{species.id}_list"}>
         {
           Iter.map(function(a) {
