@@ -1,3 +1,4 @@
+import stdlib.widgets.datepicker
 module Plant {
 	function page(path) {
 		p = List.head(path);
@@ -29,6 +30,7 @@ module Plant {
 	}
 	function render_plant(Plant.t plant) {
 		display = Model.get_plant_display(plant)
+		rendered_plant_events =  render_plant_events(plant.id);
 		<div id=#{"plant_{plant.id}"}>
 			<h2>{display.family}</>
 			<h3>{display.genus} {display.species}</>
@@ -49,8 +51,177 @@ module Plant {
 					{render_plant_misc(plant.id,display.misc)}
 				</span>
 			</>
+			<h2>History 
+				<a id=#{"plant_{plant.id}_history_add"} class="btn" onclick={function(_){
+					add_plant_event(plant.id)
+				}}><i class="icon-plus"></i></a>
+			</>
+			<div id=#{"plant_{plant.id}_history"}>
+				{rendered_plant_events}
+			</>
 		</>
 	}
+	function render_plant_events(plantid) {
+		<div id=#{"plant_{plantid}_events"}>
+			{
+				Iter.map(function(a) {
+					{
+					render_plant_event(a)
+					}
+				}, Model.get_plant_events(plantid))
+			}
+		</>
+	}
+	function render_plant_event(Plant.History.Event e) {
+		kind = Model.get_history_event_kind(e.kind)
+		<div class="row-fluid" id=#{"plant_{e.eventid}_row"}>
+			<span class="span1">{e.eventid}</>
+			<span class="span2">{Date.to_string_date_only(e.eventDate)}</>
+			<span class="span2"><strong>{kind.name}</strong></>
+			<span class="span3">{e.notes}</>
+			<span class="span1">
+				<a class="btn" onclick={function(_){
+					edit_plant_event(e)
+				}}><i class="icon-pencil"></i></a>
+			</>
+		</>
+	}
+	client function validate_date(dom,err) {
+		val = Dom.get_value(dom);
+		scanner = Date.generate_scanner("%Y-%m-%d")
+		res = Date.of_formatted_string(scanner,val)
+		if(res == {none}){
+			Dom.add_class(err,"error")
+		}else{
+			Dom.remove_class(err,"error")
+		}
+	}
+	exposed function add_plant_event(plantid) {
+		plant = Model.get_plant(plantid)
+		Dom.add_class(#{"plant_{plantid}_history_add"},"hide")
+		#{"plant_{plantid}_events"} += 
+			<div id=#{"plant_{plantid}_{plant.eventcount}_add"} class="row-fluid">
+			<span class="span1">{plant.eventcount}</>
+			<span class="control-group span2" id=#{"plant_{plantid}_{plant.eventcount}_add_date_cg"}>{
+				/*WDatepicker.edit_default(
+					{function(_){}},
+					"plant_{plantid}_{plant.eventcount}_add_date",
+					Date.now())*/
+				<input type="date" id=#{"plant_{plantid}_{plant.eventcount}_add_date"} placeholder="YYYY-MM-DD" onblur={function(_){
+					validate_date(#{"plant_{plantid}_{plant.eventcount}_add_date"},#{"plant_{plantid}_{plant.eventcount}_add_date_cg"})
+				}}  class="fill_span" value={Date.to_string_date_only(Date.now())}/>
+			}</>
+			<span class="span2"><select id=#{"plant_{plantid}_{plant.eventcount}_add_kind"} class="fill_span">
+			{
+				Iter.map(function(a) {
+					<option value={a.kind}>{a.name}</option>
+				}, Model.get_event_kinds())
+			}
+			</select></>
+			<span class="span3">
+			<input type="text" id=#{"plant_{plantid}_{plant.eventcount}_add_notes"} class="fill_span" />
+			</>
+			<span class="span1">
+				<a class="btn" onclick={function(_){
+					save_plant_event(plantid,plant.eventcount);
+				}}><i class="icon-ok"></i></a>
+			</>
+		</>
+	}
+	exposed function edit_plant_event(e) {
+		edit = 
+			<span class="span1">{e.eventid}</>
+			<span class="control-group span2" id=#{"plant_{e.eventid}_edit_date_cg"}>{
+				<input type="date" id=#{"plant_{e.eventid}_edit_date"} placeholder="YYYY-MM-DD" onblur={function(_){
+					validate_date(#{"plant_{e.eventid}_edit_date"},#{"plant_{e.eventid}_edit_date_cg"})
+				}}  class="fill_span" value={Date.to_string_date_only(e.eventDate)}/>
+			}</>
+			<span class="span2"><select id=#{"plant_{e.eventid}_edit_kind"} class="fill_span">
+			{
+				Iter.map(function(a) {
+					if(e.kind == a.kind){
+						<option value={a.kind} selected>{a.name}</option>
+					}else{
+						<option value={a.kind}>{a.name}</option>
+					}
+					
+				}, Model.get_event_kinds())
+			}
+			</select></>
+			<span class="span3">
+			<input type="text" id=#{"plant_{e.eventid}_edit_notes"} class="fill_span" value={e.notes} />
+			</>
+			<span class="span1">
+				<a class="btn" onclick={function(_){
+					save_edited_plant_event(e)
+				}}><i class="icon-ok"></i></a>
+			</>
+			<span class="span1">
+				<a title="Delete Event" class="btn  btn-danger" onclick={function(_){
+					delete_plant_event(e)
+				}}><i class="icon-trash icon-white"></i></a>
+			</>
+			
+		#{"plant_{e.eventid}_row"} = edit;
+	}
+	function save_plant_event(plantid,eventcount) {
+		kind = parse_int(Dom.get_value(#{"plant_{plantid}_{eventcount}_add_kind"}),-1)
+		notes = Dom.get_value(#{"plant_{plantid}_{eventcount}_add_notes"})
+		date = Dom.get_value(#{"plant_{plantid}_{eventcount}_add_date"})
+		scanner = Date.generate_scanner("%Y-%m-%d")
+		res = Date.of_formatted_string(scanner,date)
+		match(res){
+			case {none} : {
+				Dom.add_class(#{"plant_{plantid}_{eventcount}_add_date_cg"},"error")
+			}
+			case {some : value} : {
+				Dom.remove_class(#{"plant_{plantid}_{eventcount}_add_date_cg"},"error")
+				if(kind >= 0) {
+					Dom.remove(#{"plant_{plantid}_{eventcount}_add"})
+					eid = Model.make_history_event(plantid,kind,notes,value);
+					#{"plant_{plantid}_events"} += render_plant_event(Model.get_history_event(eid))
+					Dom.remove_class(#{"plant_{plantid}_history_add"},"hide")
+				}
+				void
+			}
+
+		}
+		void
+	}
+	function delete_plant_event(e) {
+		Model.delete_history_event(e)
+		Dom.remove(#{"plant_{e.eventid}_row"})
+	}
+	function save_edited_plant_event(event) {
+		eventid = event.eventid
+		kind = parse_int(Dom.get_value(#{"plant_{eventid}_edit_kind"}),-1)
+		notes = Dom.get_value(#{"plant_{eventid}_edit_notes"})
+		date = Dom.get_value(#{"plant_{eventid}_edit_date"})
+		scanner = Date.generate_scanner("%Y-%m-%d")
+		res = Date.of_formatted_string(scanner,date)
+		match(res){
+			case {none} : {
+				Dom.add_class(#{"plant_{eventid}_edit_date_cg"},"error")
+			}
+			case {some : value} : {
+				Dom.remove_class(#{"plant_{eventid}_edit_date_cg"},"error")
+				if(kind >= 0) {
+					Model.save_history_event({
+						~eventid,
+						plantid: event.plantid,
+						eventDate: value,
+						kind: kind,
+						~notes
+					})
+					#{"plant_{eventid}_row"}= render_plant_event(Model.get_history_event(eventid))
+				}
+				void
+			}
+
+		}
+		void
+	}
+
 	function edit_origin(plantid) {
 		plant = Model.get_plant(plantid);
 		#{"plant_{plantid}_origin"} = 

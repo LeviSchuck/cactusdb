@@ -258,7 +258,6 @@ module Model {
 	function make_history_event(plantid, kind, notes,eventDate) {
 		eid = get_next_event_for_plant(plantid)
 		string eventid = "{plantid}-{eid}"
-		/cactusdb/Plants[{id:plantid}]/eventcount++
 		/cactusdb/Plant/History/Event[{~eventid}] <- {
 			~eventid,
 			~plantid,
@@ -273,9 +272,13 @@ module Model {
 		}
 		eventid
 	}
+	function save_history_event(event) {
+		/cactusdb/Plant/History/Event[{eventid: event.eventid}] <- event
+		void
+	}
 
 	function get_plant_events(plantid) {
-		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid])
+		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid; order -eventDate])
 	}
 	function get_plant_filtered_events(plantid,kind) {
 		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid, kind == kind])
@@ -338,6 +341,10 @@ module Model {
 			misc: plant.misc
 		}
 		display
+	}
+
+	function delete_history_event(event) {
+		Db.remove(@/cactusdb/Plant/History/Event[{eventid: event.eventid}])
 	}
 }
 
