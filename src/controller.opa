@@ -1,15 +1,5 @@
 resources = @static_resource_directory("resources")
 
-/*custom = {
-    parser {
-    case r={Server.resource_map(resources)} : r
-    case "/" : Resource.default_redirection_page("/main")
-    case "/meta" : Resource.page("Meta Information",View.meta(""))
-    case "/aging" : Resource.page("Aging Report",View.aging(""))
-    case {p : ["meta"] | p} : path = Text.to_string(p); Resource.page("Meta : " ^ path, View.meta(path))
-    case p=(.*) : path = Text.to_string(p); Resource.page(path, View.page(path))	
-    }
-}*/
 function start(url) {
     match(url) {
         case {path: [] ... } : Resource.default_redirection_page("/main")
