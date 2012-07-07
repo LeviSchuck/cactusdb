@@ -21,6 +21,12 @@ module Plant {
 	      }
 	    }, p)
 	}
+	function render_plant_origin(plantid,origin) {
+		<span onclick={function(_){edit_origin(plantid)}}>{origin}</span>
+	}
+	function render_plant_misc(plantid,misc) {
+		<span onclick={function(_){edit_misc(plantid)}}>{misc}</span>
+	}
 	function render_plant(Plant.t plant) {
 		display = Model.get_plant_display(plant)
 		<div id=#{"plant_{plant.id}"}>
@@ -34,12 +40,72 @@ module Plant {
 				}
 			}</>
 			<p>
-				<h4>Origin</>
-				<span id=#{"plant_{plant.id}_origin"}>{display.origin}</span>
-				<h4>Misc.</>
-				<span id=#{"plant_{plant.id}_misc"}>{display.misc}</span>
+				<h4 onclick={function(_){edit_origin(plant.id)}}>Origin</>
+				<span id=#{"plant_{plant.id}_origin"}>
+					{render_plant_origin(plant.id,display.origin)}
+				</span>
+				<h4 onclick={function(_){edit_misc(plant.id)}}>Misc.</>
+				<span id=#{"plant_{plant.id}_misc"}>
+					{render_plant_misc(plant.id,display.misc)}
+				</span>
 			</>
 		</>
+	}
+	function edit_origin(plantid) {
+		plant = Model.get_plant(plantid);
+		#{"plant_{plantid}_origin"} = 
+			<span class="input-append">
+				<input type="text" value={plant.origin} id=#{"plant_{plant.id}_origin_input"} onnewline={function(_){
+					save_origin(plantid);
+				}} />
+				<a class="btn" onclick={function(_){save_origin(plantid)}}><i class="icon-ok"></i></a>
+			</>
+	}
+	function save_origin(plantid) {
+		plant = Model.get_plant(plantid);
+		origin = Dom.get_value(#{"plant_{plant.id}_origin_input"})
+		newplant = {
+			id: plantid,
+			family : plant.family,
+			genus: plant.genus,
+			species: plant.species,
+			variety: plant.variety,
+			memberid: plant.memberid,
+			~origin,
+			misc: plant.misc,
+			eventcount : plant.eventcount
+		}
+		Model.save_plant(newplant)
+		#{"plant_{plant.id}_origin"} = render_plant_origin(plantid,origin)
+		void
+	}
+	function edit_misc(plantid) {
+		plant = Model.get_plant(plantid);
+		#{"plant_{plantid}_misc"} = 
+			<span class="input-append">
+				<input type="text" value={plant.misc} id=#{"plant_{plant.id}_misc_input"} onnewline={function(_){
+					save_misc(plantid);
+				}} />
+				<a class="btn" onclick={function(_){save_misc(plantid)}}><i class="icon-ok"></i></a>
+			</>
+	}
+	function save_misc(plantid) {
+		plant = Model.get_plant(plantid);
+		misc = Dom.get_value(#{"plant_{plant.id}_misc_input"})
+		newplant = {
+			id: plantid,
+			family : plant.family,
+			genus: plant.genus,
+			species: plant.species,
+			variety: plant.variety,
+			memberid: plant.memberid,
+			origin: plant.origin,
+			~misc,
+			eventcount : plant.eventcount
+		}
+		Model.save_plant(newplant)
+		#{"plant_{plant.id}_misc"} = render_plant_misc(plantid,misc)
+		void
 	}
 	function parse_int(string t, int default_val) {
 		Parser.parse(parser {
