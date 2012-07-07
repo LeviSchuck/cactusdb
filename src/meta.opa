@@ -1,5 +1,39 @@
 
 module Meta {
+	function page(path) {
+	    content = 
+	      <div id=#meta_root>
+	      <h1>Meta Data: {path}</h1>
+	      <h2>Families</>
+	      <ul id=#meta_family_list>
+	      {
+	        Iter.map(function(a) {
+	            <li id={"meta_family_{a.id}"}> {
+	            meta_family(a)
+	            }</li>
+	          }, Model.get_plant_families())
+	      }
+	      </ul>
+	      {meta_form_family()}<br />
+	      <hr />
+
+	      <h1>Events</h1>
+	      <ul id=#meta_event_kind_list>
+	      {
+	        Iter.map(function(a) {
+	            <li id={"meta_event_kind_{a.kind}"}> {
+	            meta_event_kind(a)
+	            }</li>
+	          }, Model.get_event_kinds())
+	      }
+	      </ul>
+	      {meta_form_event_kind()}<br />
+	      </>
+
+	    View.template(content)
+	  }
+
+
 	function meta_family_add_btn(id) {
     <a onclick={function(_){
       #{"meta_family_add_area_{id}"} = meta_form_genus(id);
