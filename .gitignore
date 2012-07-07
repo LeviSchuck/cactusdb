@@ -3,3 +3,4 @@ _build/*
 *.exe
 access.log
 *_depends/
+node_modules/
