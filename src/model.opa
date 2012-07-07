@@ -307,11 +307,37 @@ module Model {
 	function get_plant_genus_by_family(family) {
 		DbSet.iterator(/cactusdb/Plant/Genus[family == family; order +genusName])
 	}
+	function get_plant_genuses() {
+		DbSet.iterator(/cactusdb/Plant/Genus[order +genusName])
+	}
 	function get_plant_species_by_genus(genus) {
 		DbSet.iterator(/cactusdb/Plant/Species[genus == genus; order +displayId])
 	}
 	function get_plant_variety_by_species(species) {
 		DbSet.iterator(/cactusdb/Plant/Variety[species == species; order +displayId])
+	}
+	function get_plant_display(plant) {
+		famname = get_plant_family(plant.family).familyName
+		genusname = get_plant_genus(plant.genus).genusName
+		species = get_plant_species(plant.species)
+		variety = get_plant_variety(plant.variety)
+		Plant.Display display = 
+		{
+			id : plant.id,
+
+			family : famname,
+			genus : genusname,
+			species : species.speciesName,
+			variety : variety.varietyName,
+
+			speciesid : species.id,
+			varietyid : variety.id,
+			memberid : plant.memberid,
+
+			origin : plant.origin,
+			misc: plant.misc
+		}
+		display
 	}
 }
 

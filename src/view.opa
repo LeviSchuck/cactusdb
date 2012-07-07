@@ -1,5 +1,7 @@
 import stdlib.web.client
+
 module View {
+
   function pageWrapper(title, content) {
     Resource.full_page(
       title,
@@ -17,7 +19,7 @@ module View {
           <a class="brand span2" href="/main">Cactus DB</a>
           <span class="nav-collapse collapse">
             <span class="form-search pull-right" style="text-align: right">
-              <input id=#searchtext type="text" class="input-medium search-query" />
+              <input id=#searchtext type="text" class="input-medium search-query" onnewline={function(_) {findPlant()}} />
               <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
             </>
             <ul class="nav">
@@ -34,7 +36,7 @@ module View {
       <div class="row-fluid">     
         {content} 
       </div>
-      <hr>
+      <hr />
       <footer>
         <p>Cactus DB</p>
       </footer>
@@ -50,65 +52,6 @@ module View {
       </>
     template(content)
   }
-  
-  
-  function meta(path) {
-
-    content = 
-      <div id=#meta_root>
-      <h1>Meta Data: {path}</h1>
-      <h2>Families</>
-      <ul id=#meta_family_list>
-      {
-        Iter.map(function(a) {
-            <li id={"meta_family_{a.id}"}> {
-            Meta.meta_family(a)
-            }</li>
-          }, Model.get_plant_families())
-      }
-      </ul>
-      {Meta.meta_form_family()}<br />
-      <hr />
-
-      <h1>Events</h1>
-      <ul id=#meta_event_kind_list>
-      {
-        Iter.map(function(a) {
-            <li id={"meta_event_kind_{a.kind}"}> {
-            Meta.meta_event_kind(a)
-            }</li>
-          }, Model.get_event_kinds())
-      }
-      </ul>
-      {Meta.meta_form_event_kind()}<br />
-      </>
-
-    template(content)
-  }
-  function aging(path) {
-
-    content = 
-      <div>
-      Aging: {path}
-      </>
-    template(content)
-  }
-  function find(path) {
-
-    content = 
-      <div>
-      Find: {path}
-      </>
-    template(content)
-  }
-  function plant(path) {
-    content = 
-      <div>
-      Plant: {path}
-      </>
-    template(content)
-  }
-
 
   function findPlant() {
     searchtext = Dom.get_value(#searchtext)
