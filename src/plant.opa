@@ -88,8 +88,7 @@ module Plant {
 	}
 	client function validate_date(dom,err) {
 		val = Dom.get_value(dom);
-		scanner = Date.generate_scanner("%Y-%m-%d")
-		res = Date.of_formatted_string(scanner,val)
+		res = parse_date(val)
 		if(res == {none}){
 			Dom.add_class(err,"error")
 		}else{
@@ -164,12 +163,23 @@ module Plant {
 			
 		#{"plant_{e.eventid}_row"} = edit;
 	}
+	function parse_date(date) {
+		//The only reason why this function exists is because Opa can't friggen validate months properly.
+		//It doesn't care about year or day, just months, and I can't try catch it.
+		scanner = Date.generate_scanner("%Y-%m-%d");
+		Parser.parse(parser {
+			case [0-9]+ "-" [0]* ([1] [0-2] | [1-9]) "-" [0-9]+ : {
+				Date.of_formatted_string(scanner,date);
+			}
+			case .* : {none}
+		},date)
+	}
 	function save_plant_event(plantid,eventcount) {
 		kind = parse_int(Dom.get_value(#{"plant_{plantid}_{eventcount}_add_kind"}),-1)
 		notes = Dom.get_value(#{"plant_{plantid}_{eventcount}_add_notes"})
 		date = Dom.get_value(#{"plant_{plantid}_{eventcount}_add_date"})
-		scanner = Date.generate_scanner("%Y-%m-%d")
-		res = Date.of_formatted_string(scanner,date)
+		res = parse_date(date)
+		Log.info("date", "Parsed date as {res}")
 		match(res){
 			case {none} : {
 				Dom.add_class(#{"plant_{plantid}_{eventcount}_add_date_cg"},"error")
