@@ -347,10 +347,11 @@ module Plant {
 	function save_species(int species, int variety, int memberid) {
 		genus = parse_int(Dom.get_value(#{"genus_select_{species}"}),-1)
 		species_name = Dom.get_value(#{"species_input_{species}"})
-		if(genus > 1 && String.length(species_name) > 0){
+		if(genus >= 0 && String.length(species_name) > 0){
 			_ = Model.make_species(genus,species_name,species)
 			#plant_root_content = render_potential_plant(species,variety,memberid)
 		}else{
+			//Log.info("failed validation","Failed validation due to g:{genus} sn: {species_name}")
 			Dom.add_class(#{"species_create_{species}"},"error")
 		}
 		void
