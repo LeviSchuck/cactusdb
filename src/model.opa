@@ -351,6 +351,9 @@ module Model {
 	function get_history_last_event(plantid,kind) {
 		/cactusdb/Plant/History/LastEvent[{~plantid,~kind}]
 	}
+	function get_history_last_events_of(kind) {
+		DbSet.iterator(/cactusdb/Plant/History/LastEvent[kind == kind; order +eventDate])
+	}
 	function save_history_event(event) {
 		/cactusdb/Plant/History/Event[{eventid: event.eventid}] <- event
 		match(?/cactusdb/Plant/History/LastEvent[{plantid : event.plantid,kind: event.kind}]){
@@ -445,6 +448,9 @@ module Model {
 	}
 	function get_plant_latestEvents_cache(plantid) {
 		?/cactusdb/Plant/LatestEvents[{id: plantid}]
+	}
+	function get_history_event_by_meta(plantid, kind, eventDate) {
+		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid, kind == kind, eventDate==eventDate])
 	}
 }
 
