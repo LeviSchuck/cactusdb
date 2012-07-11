@@ -31,7 +31,7 @@ module View {
         </>
       </>
     </>
-    <div id=#main class="container-fluid">
+    <div id=#main class="container">
       <div class="row-fluid">     
         {content} 
       </div>
