@@ -43,7 +43,7 @@ module View {
   }
 
   function page(path) {
-    allplants = Iter.to_list(Model.get_plants())
+    //allplants = Iter.to_list(Model.get_plants())
     //plants = Plant.render_plant_grid(allplants)
     content = 
       <>
