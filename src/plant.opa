@@ -129,9 +129,7 @@ module Plant {
 				//Log.info("plant_tile","Rendering Plant Latest Events")
 				render_plant_latest_events(plant.id)
 			}
-			<a class="btn btn-primary pull-right" onclick={function(_){
-				Client.goto("/plant/{Model.get_plant_displayid(plant)}")
-			}}><i class="icon-pencil icon-white"></i> Edit</a>
+			<a class="btn btn-primary pull-right" href="/plant/{Model.get_plant_displayid(plant)}"><i class="icon-pencil icon-white"></i> Edit</a>
 			<hr />
 			
 			</>
@@ -144,9 +142,7 @@ module Plant {
 				//Log.info("plant_tile","Rendering Plant Latest Events")
 				render_plant_latest_events(display.id)
 			}
-			<a class="btn btn-primary pull-right" onclick={function(_){
-				Client.goto("/plant/{display.speciesid}-{display.varietyid}-{display.memberid}")
-			}}><i class="icon-pencil icon-white"></i> Edit</a>
+			<a class="btn btn-primary pull-right" href="/plant/{display.speciesid}-{display.varietyid}-{display.memberid}"><i class="icon-pencil icon-white"></i> Edit</a>
 			<hr />
 			</>
 			)
