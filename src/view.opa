@@ -44,11 +44,11 @@ module View {
 
   function page(path) {
     allplants = Iter.to_list(Model.get_plants())
-    plants = Plant.render_plant_grid(allplants)
+    //plants = Plant.render_plant_grid(allplants)
     content = 
       <>
       <h1>All Plants</h1>
-      {plants}
+      Cannot provide plants at this time, for the logic is too inefficient.
       </>
     template(content)
   }
