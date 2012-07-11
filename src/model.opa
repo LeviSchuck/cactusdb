@@ -49,12 +49,24 @@ type Plant.Display = {
 	string species,
 	string variety,
 
+
+	{
+		Plant.Family.id family,
+		Plant.Genus.id genus,
+		Plant.Species.id species,
+		Plant.Variety.id variety
+	} ids,
+
 	int speciesid,
 	int varietyid,
 	int memberid,
 
 	string origin,
 	string misc
+}
+type Plant.latest_events_cache  = {
+	Plant.id id,
+	string contents
 }
 type Plant.History.Kind = int
 type Plant.History.Kinds = {
@@ -83,6 +95,8 @@ database cactusdb {
 	Plant.Genus.t /Plant/Genus[{id}]
 	Plant.Species.t /Plant/Species[{id}]
 	Plant.Variety.t /Plant/Variety[{id}]
+	Plant.Display /Plant/Display[{id}]
+	Plant.latest_events_cache /Plant/LatestEvents[{id}]
 	int /Plant/Next/id = 0
 	int /Plant/Next/Family/id = 0
 	int /Plant/Next/Genus/id = 0
@@ -123,30 +137,54 @@ module Model {
 		/cactusdb/Plant/Next/Variety/id - 1
 	}
 
-	function Plant.Display get_plant_info(id) {
-		plant = /cactusdb/Plants[{~id}]
-		var = /cactusdb/Plant/Variety[{id: plant.variety}]
-		spec = /cactusdb/Plant/Species[{id: plant.species}]
-		gen = /cactusdb/Plant/Genus[{id: plant.genus}]
-		fam = /cactusdb/Plant/Family[{id: plant.family}]
-		{
-			id : plant.id,
+	function Plant.Display get_plant_info(Plant.id id) {
+		di = ?/cactusdb/Plant/Display[{~id}]
+		match(di) {
+			case {none} : {
+				Log.info("plant_display", "Generating plant {id}")
+				plant = /cactusdb/Plants[{~id}]
+				var = /cactusdb/Plant/Variety[{id: plant.variety}]
+				spec = /cactusdb/Plant/Species[{id: plant.species}]
+				gen = /cactusdb/Plant/Genus[{id: plant.genus}]
+				fam = /cactusdb/Plant/Family[{id: plant.family}]
+				d = 
+				{
+					id : plant.id,
 
-			family : fam.familyName,
-			genus : gen.genusName,
-			species : spec.speciesName,
-			variety : var.varietyName,
+					family : fam.familyName,
+					genus : gen.genusName,
+					species : spec.speciesName,
+					variety : var.varietyName,
 
-			speciesid : spec.displayId,
-			varietyid : var.displayId,
-			memberid : plant.memberid,
+					speciesid : spec.displayId,
+					varietyid : var.displayId,
+					memberid : plant.memberid,
+					ids : {
+						family : plant.family,
+						genus : plant.genus,
+						species : plant.species,
+						variety : plant.variety
+					},
 
-			origin : plant.origin,
-			misc : plant.misc
+					origin : plant.origin,
+					misc : plant.misc
+				}
+				/cactusdb/Plant/Display[{~id}] <- d
+				d
+			}
+			case {some: d} : d
 		}
+		
 	}
 	function save_plant(plant) {
 		/cactusdb/Plants[{id: plant.id}] <- plant
+		match(?/cactusdb/Plant/Display[{id : plant.id}]) {
+			case {none}: void
+			case {some: _} : {
+				Db.remove(@/cactusdb/Plant/Display[{id : plant.id}])
+				//Clear cache.
+			}
+		}
 	}
 	function make_plant(variety,memberid,origin,misc) {
 		id = get_next_id_for_plant()
@@ -166,6 +204,7 @@ module Model {
 			eventcount : 0
 		}
 		save_plant(plant)
+
 	}
 	function get_plant_displayid(Plant.t plant) {
 		"{
@@ -204,6 +243,11 @@ module Model {
 			~id,
 			familyName: name
 		}
+		//clear cache
+		_ = Iter.map(function(display){
+			Db.remove(@/cactusdb/Plant/Display[{id : display.id}])
+		},DbSet.iterator(/cactusdb/Plant/Display[ids.family == id]));
+		void
 	}
 	function make_family(name) {
 		id = get_next_id_for_family()
@@ -215,6 +259,11 @@ module Model {
 	}
 	function save_genus(id,name) {
 		/cactusdb/Plant/Genus[{~id}]/genusName <- name
+		//clear cache
+		_ = Iter.map(function(display){
+			Db.remove(@/cactusdb/Plant/Display[{id : display.id}])
+		},DbSet.iterator(/cactusdb/Plant/Display[ids.genus == id]))
+		void
 	}
 	function make_genus(family,name) {
 		id = get_next_id_for_genus()
@@ -228,6 +277,11 @@ module Model {
 	function save_species(id,name,displayId) {
 		/cactusdb/Plant/Species[{~id}]/speciesName <- name
 		/cactusdb/Plant/Species[{~id}]/displayId <- displayId
+		//clear cache
+		_ = Iter.map(function(display){
+			Db.remove(@/cactusdb/Plant/Display[{id : display.id}])
+		},DbSet.iterator(/cactusdb/Plant/Display[ids.species == id]))
+		void
 	}
 	function make_species(genus,name, displayId) {
 		id = get_next_id_for_species()
@@ -242,6 +296,11 @@ module Model {
 	function save_variety(id,name,displayId) {
 		/cactusdb/Plant/Variety[{~id}]/varietyName <- name
 		/cactusdb/Plant/Variety[{~id}]/displayId <- displayId
+		//clear cache
+		_ = Iter.map(function(display){
+			Db.remove(@/cactusdb/Plant/Display[{id : display.id}])
+		},DbSet.iterator(/cactusdb/Plant/Display[ids.variety == id]))
+		void
 	}
 	function make_variety(species,name, displayId) {
 		id = get_next_id_for_variety()
@@ -280,6 +339,13 @@ module Model {
 			~kind,
 			~eventDate
 		}
+		match(?/cactusdb/Plant/LatestEvents[{id : plantid}]) {
+			case {none}: void
+			case {some: _} : {
+				Db.remove(@/cactusdb/Plant/LatestEvents[{id : plantid}])
+				//Clear cache.
+			}
+		}
 		eventid
 	}
 	function get_history_last_event(plantid,kind) {
@@ -287,7 +353,32 @@ module Model {
 	}
 	function save_history_event(event) {
 		/cactusdb/Plant/History/Event[{eventid: event.eventid}] <- event
-		void
+		match(?/cactusdb/Plant/History/LastEvent[{plantid : event.plantid,kind: event.kind}]){
+			case {none} : {
+				/cactusdb/Plant/History/LastEvent[{plantid : event.plantid,kind: event.kind}] <- {
+					plantid : event.plantid,
+					kind: event.kind,
+					eventDate: event.eventDate
+				}
+			}
+			case {some: v} : {
+				if(v.eventDate < event.eventDate) {
+					/cactusdb/Plant/History/LastEvent[{plantid : event.plantid,kind: event.kind}] <- {
+						plantid : event.plantid,
+						kind: event.kind,
+						eventDate: event.eventDate
+					}
+				}
+			}
+		}
+		
+		match(?/cactusdb/Plant/LatestEvents[{id : event.plantid}]) {
+			case {none}: void
+			case {some: _} : {
+				Db.remove(@/cactusdb/Plant/LatestEvents[{id : event.plantid}])
+				//Clear cache.
+			}
+		}
 	}
 
 	function get_plant_events(plantid) {
@@ -332,32 +423,28 @@ module Model {
 	function get_plant_variety_by_species(species) {
 		DbSet.iterator(/cactusdb/Plant/Variety[species == species; order +displayId])
 	}
+	function get_plant_displays() {
+		DbSet.iterator(/cactusdb/Plant/Display[])
+	}
 	function get_plant_display(plant) {
-		famname = get_plant_family(plant.family).familyName
-		genusname = get_plant_genus(plant.genus).genusName
-		species = get_plant_species(plant.species)
-		variety = get_plant_variety(plant.variety)
-		Plant.Display display = 
-		{
-			id : plant.id,
-
-			family : famname,
-			genus : genusname,
-			species : species.speciesName,
-			variety : variety.varietyName,
-
-			speciesid : species.id,
-			varietyid : variety.id,
-			memberid : plant.memberid,
-
-			origin : plant.origin,
-			misc: plant.misc
-		}
-		display
+		get_plant_info(plant.id)
 	}
 
 	function delete_history_event(event) {
 		Db.remove(@/cactusdb/Plant/History/Event[{eventid: event.eventid}])
+		match(?/cactusdb/Plant/LatestEvents[{id : event.plantid}]) {
+			case {none}: void
+			case {some: _} : {
+				Db.remove(@/cactusdb/Plant/LatestEvents[{id : event.plantid}])
+				//Clear cache.
+			}
+		}
+	}
+	function save_plant_latestEvents_cache(latest) {
+		/cactusdb/Plant/LatestEvents[{id:latest.id}] <- latest
+	}
+	function get_plant_latestEvents_cache(plantid) {
+		?/cactusdb/Plant/LatestEvents[{id: plantid}]
 	}
 }
 

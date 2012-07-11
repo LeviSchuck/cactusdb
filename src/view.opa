@@ -42,13 +42,17 @@ module View {
     </div>
   }
 
-  function page(path) {
-    //allplants = Iter.to_list(Model.get_plants())
-    //plants = Plant.render_plant_grid(allplants)
+  function page(_) {
+    Log.info("main", "Main page starting")
+    allplants = Iter.to_list(Model.get_plant_displays())
+    Log.info("main","Plant Render Start")
+    plants = Plant.render_plant_grid_w_display(allplants)
+    Log.info("main","Plant Render end")
     content = 
       <>
       <h1>All Plants</h1>
-      Cannot provide plants at this time, for the logic is too inefficient.
+      
+      {plants}
       </>
     template(content)
   }
