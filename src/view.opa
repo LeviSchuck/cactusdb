@@ -13,21 +13,20 @@ module View {
       );
   }
   function template(content) {
-    <div class="navbar">
+    <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="brand span2" href="/main">Cactus DB</a>
-          <span class="nav-collapse collapse">
-            <span class="form-search pull-right" style="text-align: right">
+          <a class="brand" href="/main">Cactus DB</a>
+          
+            <span class="navbar-search pull-right input-append cactus-nav" style="text-align: right">
               <input id=#searchtext type="text" class="input-medium search-query" onnewline={function(_) {findPlant()}} />
-              <input type="button" class="btn btn-info" value="locate" onclick={function(_) {findPlant()}} />
+              <a class="btn btn-info" onclick={function(_) {findPlant()}} >Locate</a>
             </>
             <ul class="nav">
               <li><a href="/main">Main</a></li>
               <li><a href="/aging">Aging Report</a></li>
               <li><a href="/meta">Meta</a></li>
             </ul>
-          </>
           
         </>
       </>
@@ -44,11 +43,12 @@ module View {
   }
 
   function page(path) {
-    
+    allplants = Iter.to_list(Model.get_plants())
+    plants = Plant.render_plant_grid(allplants)
     content = 
-      <div class="">
-        Eggs brah <br />
-        {path}
+      <>
+      <h1>All Plants</h1>
+      {plants}
       </>
     template(content)
   }

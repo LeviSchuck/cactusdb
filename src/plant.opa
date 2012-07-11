@@ -28,17 +28,48 @@ module Plant {
 	function render_plant_misc(plantid,misc) {
 		<span onclick={function(_){edit_misc(plantid)}}>{misc}</span>
 	}
-	function render_plant(Plant.t plant) {
-		display = Model.get_plant_display(plant)
+	function render_plant_events_wrapper(Plant.t plant) {
 		rendered_plant_events =  render_plant_events(plant.id);
+		<h2>History 
+			<a id=#{"plant_{plant.id}_history_add"} class="btn" onclick={function(_){
+				add_plant_event(plant.id)
+			}}><i class="icon-plus"></i></a>
+		</>
+		<div id=#{"plant_{plant.id}_history"}>
+			{rendered_plant_events}
+		</>
+	}
+	function render_plant_latest_events(Plant.t plant) {
+		<>
+		<h3>Latest Events</h3>
+		{
+			Iter.map(function(kind) {
+				lastevent = Model.get_history_last_event(plant.id,kind.kind)
+				if(Date.in_milliseconds(lastevent.eventDate) > 0) {
+					<div class="row-fluid">
+						<span class="span6">{kind.name}</span>
+						<span class="span6">{Date.to_string_date_only(lastevent.eventDate)}</span>
+					</div>
+				} else {
+					<></>
+				}
+				
+			},Model.get_event_kinds())
+		}
+		</>
+	}
+	function render_plant(Plant.t plant, additional) {
+		display = Model.get_plant_display(plant)
+
+
 		<div id=#{"plant_{plant.id}"}>
-			<h2>{display.family}</>
+			<h2>{display.family} {Model.get_plant_displayid(plant)}</>
 			<h3>{display.genus} {display.species}</>
 			<h4>Variety: {
 				if(String.length(display.variety) > 0) {
 					display.variety
 				}else{
-					"Not specified"
+					"{display.varietyid}"
 				}
 			}</>
 			<p>
@@ -51,15 +82,22 @@ module Plant {
 					{render_plant_misc(plant.id,display.misc)}
 				</span>
 			</>
-			<h2>History 
-				<a id=#{"plant_{plant.id}_history_add"} class="btn" onclick={function(_){
-					add_plant_event(plant.id)
-				}}><i class="icon-plus"></i></a>
-			</>
-			<div id=#{"plant_{plant.id}_history"}>
-				{rendered_plant_events}
-			</>
+			{additional}
 		</>
+	}
+	function render_plant_tile(Plant.t plant) {
+		render_plant(plant,
+			<>
+			{
+				render_plant_latest_events(plant)
+			}
+			<a class="btn btn-primary pull-right" onclick={function(_){
+				Client.goto("/plant/{Model.get_plant_displayid(plant)}")
+			}}><i class="icon-pencil icon-white"></i> Edit</a>
+			<hr />
+			
+			</>
+			)
 	}
 	function render_plant_events(plantid) {
 		<div id=#{"plant_{plantid}_events"}>
@@ -310,7 +348,7 @@ module Plant {
 				}
 			}
 			case {some: value } : {
-				render_plant(value)
+				render_plant(value,render_plant_events_wrapper(value))
 
 				
 			}
@@ -413,6 +451,53 @@ module Plant {
 			Dom.get_value(#{"newplant_{memberid}_misc"}));
 		#plant_root_content = render_potential_plant(spec,var,memberid)
 		void
+	}
+
+	//Perfect example of how to do like 
+	/*
+	count = 0;
+	foreach(plant in plants){
+		if(count == 0){
+			echo '<div>'
+		}
+		echo '<span>'.plant.'</span>'
+		if(count == 3){
+			echo '</div><div>'
+			count = 0;
+		}
+	}
+	echo '</div>'
+	*/
+	//Except recursively, but that's just how this language works.
+	function render_plant_tile_rows(rendered_plants) {
+		(b, e) = List.split_at(rendered_plants, 3)
+		<>
+			<div class="plant_tiles row-fluid">
+				{
+					List.map(function(plant){
+						plant
+					},b)
+				}
+			</div>
+			{
+				if(e == {nil}) {
+					<></>
+				} else {
+					render_plant_tile_rows(e)
+				}
+			}
+		</>
+	}
+	function render_plant_grid(plants) {
+		rendered_plants = 
+			List.map(function(plant){
+				<span class="plant_tile span4">
+				{
+					Plant.render_plant_tile(plant)
+				}
+				</span>
+			},plants)
+		render_plant_tile_rows(rendered_plants)
 	}
 	
 

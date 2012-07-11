@@ -95,6 +95,9 @@ module Model {
 	function get_plant(id) {
 		/cactusdb/Plants[{~id}]
 	}
+	function get_plants() {
+		DbSet.iterator(/cactusdb/Plants[])
+	}
 	function int get_next_event_for_plant(id) {
 		/cactusdb/Plants[{~id}]/eventcount++
 		/cactusdb/Plants[{~id}]/eventcount - 1
@@ -163,6 +166,13 @@ module Model {
 			eventcount : 0
 		}
 		save_plant(plant)
+	}
+	function get_plant_displayid(Plant.t plant) {
+		"{
+			/cactusdb/Plant/Species[{id: plant.species}]/displayId
+		}-{
+			/cactusdb/Plant/Variety[{id: plant.variety}]/displayId
+		}-{plant.memberid}"
 	}
 	function find_species_by_display(id) {
 		dbspecid = DbSet.iterator(/cactusdb/Plant/Species[displayId == id])
@@ -271,6 +281,9 @@ module Model {
 			~eventDate
 		}
 		eventid
+	}
+	function get_history_last_event(plantid,kind) {
+		/cactusdb/Plant/History/LastEvent[{~plantid,~kind}]
 	}
 	function save_history_event(event) {
 		/cactusdb/Plant/History/Event[{eventid: event.eventid}] <- event

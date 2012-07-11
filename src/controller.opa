@@ -1,3 +1,6 @@
+import stdlib.themes.bootstrap
+import stdlib.themes.bootstrap.responsive
+
 resources = @static_resource_directory("resources")
 
 function start(url) {
@@ -8,6 +11,7 @@ function start(url) {
         case {path: ["aging" | path ] ... } : View.pageWrapper("Aging Report", Aging.page(path))
         case {path: ["plant" | path ] ... } : View.pageWrapper("Plant", Plant.page(path))
         case {path: ["find" | path ] ... } : View.pageWrapper("Search", Find.page(path))
+        //saying ~path means insert path as it is, since we have to match to something
         case {~path ...}: Resource.error_page("404 Not Found", <h1>Bad URL {path}</h1>,{wrong_address})
     }
 }
