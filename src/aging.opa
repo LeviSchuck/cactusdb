@@ -14,10 +14,10 @@ module Aging {
 
 						<>
 						<div class="row-fluid">
-							<span class="span1">{
+							<span class="span2">{
 								Date.to_string_date_only(b.eventDate)
 							}</span>
-							<span class="span1">{plant.speciesid}-{plant.varietyid}-{plant.memberid}</span>
+							<span class="span3">{plant.speciesid}-{plant.varietyid}-{plant.memberid}</span>
 							<span class="span2">{plant.genus} {plant.species}</span>
 							<span class="span1">{
 								
