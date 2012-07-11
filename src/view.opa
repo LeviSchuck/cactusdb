@@ -50,9 +50,15 @@ module View {
     Log.info("main","Plant Render end")
     content = 
       <>
-      <h1>All Plants</h1>
-      
+      <h1>All Plants
+        <a class="btn btn-large btn-warning" onclick={function(_){
+          allplants2 = Iter.to_list(Model.get_plants())
+          #allplants = Plant.render_plant_grid(allplants2)
+        }}>Regenerate Cache</a>
+      </h1>
+      <div id=#allplants>
       {plants}
+      </div>
       </>
     template(content)
   }
