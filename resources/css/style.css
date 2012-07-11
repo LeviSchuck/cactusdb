@@ -5,3 +5,11 @@
 .fill_span {
 	width: 100%;
 }
+.plant_tiles .plant_tile {
+}
+.plant_tiles {
+	margin-bottom: 1em;
+}
+.cactus-nav {
+	margin-top:0;
+}
