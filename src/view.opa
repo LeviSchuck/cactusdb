@@ -37,7 +37,7 @@ module View {
       </div>
       <hr />
       <footer>
-        <p>Cactus DB</p>
+        <p>Cactus DB &copy; Levi Schuck</p>
       </footer>
     </div>
   }
