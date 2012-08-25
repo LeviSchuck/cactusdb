@@ -405,11 +405,15 @@ module Model {
 	function get_plant_family(id) {
 		/cactusdb/Plant/Family[{~id}]
 	}
+
 	function get_plant_genus(id) {
 		/cactusdb/Plant/Genus[{~id}]
 	}
 	function get_plant_species(id) {
 		/cactusdb/Plant/Species[{~id}]
+	}
+	function get_plant_all_species() {
+		DbSet.iterator(/cactusdb/Plant/Species[])
 	}
 	function get_plant_variety(id) {
 		/cactusdb/Plant/Variety[{~id}]

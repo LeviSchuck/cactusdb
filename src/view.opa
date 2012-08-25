@@ -12,6 +12,9 @@ module View {
       {nil}
       );
   }
+  function jsonWrapper(content) {
+    Resource.json(content)
+  }
   function template(content) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
