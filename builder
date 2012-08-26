@@ -9,7 +9,7 @@ if [ ! -d ~/opa ] ; then
     sh install -- ~/opa
     rm install
     # Install node dependencies
-    (cd ~ && npm install mongodb formidable nodemailer imap)
+    (cd ~ && npm install -g n && npm install mongodb formidable nodemailer imap )
 fi
 
 # Runscript
@@ -29,4 +29,4 @@ which opa
 
 # Compiling the OPA app
 cd ~ && make
-
+npm install -g n
