@@ -4,6 +4,3 @@ opa:
     process: ~/run
     ports:
         www: http
-
-db:
-    type: mongodb
