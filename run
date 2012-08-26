@@ -3,12 +3,12 @@
 export NODE_PATH="${HOME}/node_modules"
 MONGO_URL="${DOTCLOUD_DB_MONGODB_LOGIN}:${DOTCLOUD_DB_MONGODB_PASSWORD}@${DOTCLOUD_DB_MONGODB_HOST}:${DOTCLOUD_DB_MONGODB_PORT}"
 
-exec ~/cactusdb.exe \
-         --logs-path /var/log/supervisor \
-         --http-port $PORT_WWW \
-         $@
 #exec ~/cactusdb.exe \
 #         --logs-path /var/log/supervisor \
-#         --db-remote "$MONGO_URL" \
 #         --http-port $PORT_WWW \
 #         $@
+exec ~/cactusdb.exe \
+         --logs-path /var/log/supervisor \
+         --db-remote "$MONGO_URL" \
+         --http-port $PORT_WWW \
+         $@
