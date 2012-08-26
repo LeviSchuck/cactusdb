@@ -22,9 +22,10 @@ cp -r Makefile ~/
 cp -r Makefile.common ~/
 cp opa.conf ~/
 
-export PATH=$PATH:`pwd`/opa/bin/
+export PATH=$PATH:${HOME}/opa/bin/
 echo $PATH
 which opa
+
 # Compiling the OPA app
 cd ~ && make
 
