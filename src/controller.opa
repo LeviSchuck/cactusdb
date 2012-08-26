@@ -23,9 +23,7 @@ custom = {
     }
 }
 
-Server.start({
-    port: 58000, netmask:0.0.0.0, encryption: {no_encryption}, name:"cactusdb"
-}, [
+Server.start(Server.http, [
 	{ register : 
 		[ { doctype : { html5 } },
 		  {  js : [ ] },
