@@ -1,7 +1,8 @@
 #!/bin/sh
 
 BINURL="http://download.opalang.org/linux/opa_1.0.5%2Bbuild2988_amd64.release.run"
-
+BINURL="http://download.opalang.org/linux/opa_1.0.4+build2441_amd64.run"
+# Apparently the node available is too low for 1.0.5
 # Installing OPA, first push only
 if [ ! -d ~/opa ] ; then
     mkdir ~/opa
@@ -9,7 +10,7 @@ if [ ! -d ~/opa ] ; then
     sh install -- ~/opa
     rm install
     # Install node dependencies
-    (cd ~ && npm install -g n && npm install mongodb formidable nodemailer imap )
+    (cd ~ && npm install mongodb formidable nodemailer imap )
 fi
 
 # Runscript
@@ -29,4 +30,4 @@ which opa
 
 # Compiling the OPA app
 cd ~ && make
-npm install -g n
+
