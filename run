@@ -5,6 +5,10 @@ MONGO_URL="${DOTCLOUD_DB_MONGODB_LOGIN}:${DOTCLOUD_DB_MONGODB_PASSWORD}@${DOTCLO
 
 exec ~/cactusdb.exe \
          --logs-path /var/log/supervisor \
-         --db-remote "$MONGO_URL" \
          --http-port $PORT_WWW \
          $@
+#exec ~/cactusdb.exe \
+#         --logs-path /var/log/supervisor \
+#         --db-remote "$MONGO_URL" \
+#         --http-port $PORT_WWW \
+#         $@
