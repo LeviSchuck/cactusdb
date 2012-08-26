@@ -15,6 +15,9 @@ module View {
   function jsonWrapper(content) {
     Resource.json(content)
   }
+  function rawWrapper(content) {
+    Resource.raw_text(content)
+  }
   function template(content) {
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">

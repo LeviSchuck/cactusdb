@@ -456,5 +456,69 @@ module Model {
 	function get_history_event_by_meta(plantid, kind, eventDate) {
 		DbSet.iterator(/cactusdb/Plant/History/Event[plantid == plantid, kind == kind, eventDate==eventDate])
 	}
+	function cleanDatabase() {
+		Log.warning("db_cleanup", "Attempting to clean Database")
+		_ = Iter.map(function(plant){
+			Db.remove(@/cactusdb/Plants[{id: plant.id}])
+			Log.warning("db_cleanup", "Deleting Plant {plant.id}")
+			void
+		},Model.get_plants())
+
+		_ = Iter.map(function(display){
+			Log.warning("db_cleanup", "Deleting Plant Display {display.id}")
+			Db.remove(@/cactusdb/Plant/Display[{id : display.id}])
+		},DbSet.iterator(/cactusdb/Plant/Display[]))
+
+		_ = Iter.map(function(kind){
+			Db.remove(@/cactusdb/Plant/History/Kinds[{kind: kind.kind}])
+			Log.warning("db_cleanup", "Deleting kind {kind.kind}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/History/Kinds[]))
+
+		_ = Iter.map(function(event){
+			Db.remove(@/cactusdb/Plant/History/Event[{eventid: event.eventid}])
+			Log.warning("db_cleanup", "Deleting Event {event.eventid}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/History/Event[]))
+
+		_ = Iter.map(function(event){
+			Db.remove(@/cactusdb/Plant/History/LastEvent[{plantid: event.plantid, kind: event.kind}])
+			void
+		},DbSet.iterator(/cactusdb/Plant/History/LastEvent[]))
+
+		_ = Iter.map(function(family){
+			Db.remove(@/cactusdb/Plant/Family[{id: family.id}])
+			Log.warning("db_cleanup", "Deleting Family {family.id}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/Family[]))
+
+		_ = Iter.map(function(a){
+			Db.remove(@/cactusdb/Plant/Genus[{id: a.id}])
+			Log.warning("db_cleanup", "Deleting Genus {a.id}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/Genus[]))
+
+		_ = Iter.map(function(a){
+			Db.remove(@/cactusdb/Plant/Species[{id: a.id}])
+			Log.warning("db_cleanup", "Deleting Species {a.id}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/Species[]))
+
+		_ = Iter.map(function(a){
+			Db.remove(@/cactusdb/Plant/Variety[{id: a.id}])
+			Log.warning("db_cleanup", "Deleting Variety {a.id}")
+			void
+		},DbSet.iterator(/cactusdb/Plant/Variety[]))
+
+
+
+		_ = Iter.map(function(event){
+			Db.remove(@/cactusdb/Plant/LatestEvents[{id: event.id}])
+			void
+		},DbSet.iterator(/cactusdb/Plant/LatestEvents[]))
+
+		Log.warning("db_cleanup", "Cleaned Database")
+		void
+	}
 }
 

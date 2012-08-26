@@ -10,7 +10,8 @@ function start(url) {
         case {path: ["meta" | path ] ... } : View.pageWrapper("Meta Information", Meta.page(path))
         case {path: ["aging" | path ] ... } : View.pageWrapper("Aging Report", Aging.page(path))
         case {path: ["plant" | path ] ... } : View.pageWrapper("Plant", Plant.page(path))
-        case {path: ["export"] ...} : View.jsonWrapper(ImportExport.export())
+        case {path: ["export"] ...} : View.rawWrapper(ImportExport.export())
+        case {path: ["import"] ...} : View.pageWrapper("Import Database", ImportExport.import())
         case {path: ["find" | path ] ... } : View.pageWrapper("Search", Find.page(path))
         //saying ~path means insert path as it is, since we have to match to something
         case {~path ...}: Resource.error_page("404 Not Found", <h1>Bad URL {path}</h1>,{wrong_address})
